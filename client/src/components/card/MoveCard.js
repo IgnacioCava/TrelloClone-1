@@ -22,8 +22,8 @@ const MoveCard = withStore(['board'], ({store, props}) => {
   const [position, setPosition] = useState(0);
   const [positions, setPositions] = useState([0]);
 
-  const {lists, cardObjects} = state.boardState.board;
-  const listObjects = state.boardState.listObjects.sort(
+  const {lists, cardObjects} = state.board.board;
+  const listObjects = state.board.listObjects.sort(
     (a, b) => lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
   ).filter((list) => !list.archived)
 

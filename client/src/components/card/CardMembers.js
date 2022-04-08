@@ -9,7 +9,7 @@ const CardMembers = withStore(['board'], ({store, props}) => {
   const { card } = props;
   const { state, dispatch } = store
 
-  const boardMembers = state.boardState.board.members
+  const boardMembers = state.board.board.members
   const members = card.members.map((member) => member.user);
 
   const classes = useStyles();

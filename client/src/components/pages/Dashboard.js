@@ -9,8 +9,8 @@ import withStore from '../../Store/withStore';
 const Dashboard = withStore(['board', 'auth'], ({store, props}) => {
   const {state, dispatch} = store
 
-  const { boards, loading } = state.boardState
-  const { user, isAuthenticated } = state.authState
+  const { boards, loading } = state.board
+  const { user, isAuthenticated } = state.auth
   if (!isAuthenticated) return <Redirect to='/' />
 
   useEffect(() => {

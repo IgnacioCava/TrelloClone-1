@@ -3,7 +3,7 @@ import AlertMUI from '@material-ui/lab/Alert';
 import withStore from '../../Store/withStore';
 
 export const Alert = withStore(['alert'],({store, props}) => {
-  const alerts = store.state.alertState
+  const alerts = store.state.alert
 
   return (
     alerts !== null &&

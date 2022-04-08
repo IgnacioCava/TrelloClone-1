@@ -17,7 +17,7 @@ const Card = withStore(['board'], ({store, props}) => {
   const { cardId, list, index } = props
   const { state, dispatch } = store
   
-  const card = state.boardState.board.cardObjects.find((object) => object._id === cardId)
+  const card = state.board.board.cardObjects.find((object) => object._id === cardId)
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);

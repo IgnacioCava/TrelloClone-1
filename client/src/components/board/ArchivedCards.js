@@ -6,7 +6,7 @@ import withStore from '../../Store/withStore';
 const ArchivedCards = withStore(['board'], ({store}) => {
   const { state, dispatch } = store
 
-  const { cardObjects, listObjects} = state.boardState.board
+  const { cardObjects, listObjects} = state.board.board
 
   const onDelete = async (listId, cardId) => dispatch(deleteCard(listId, cardId));
   const onSendBack = async (cardId) => dispatch(archiveCard(cardId, false));

@@ -18,7 +18,7 @@ const MoveList = withStore(['board'], ({store, props}) => {
 	const { listId, closeMenu } = props
 	const { state, dispatch } = store
 
-	const { lists, listObjects } = state.boardState.board
+	const { lists, listObjects } = state.board.board
 
 	const classes = useStyles();
 

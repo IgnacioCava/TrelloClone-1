@@ -14,8 +14,8 @@ import withStore from '../../Store/withStore';
 const Board = withStore(['board','auth'],({store, props}) => {
   const {state, dispatch} = store
 
-  const board = state.boardState.board
-  const isAuthenticated = state.authState.isAuthenticated
+  const board = state.board.board
+  const isAuthenticated = state.auth.isAuthenticated
   if (!isAuthenticated) return <Redirect to='/' />;
 
   const {id} = useParams()

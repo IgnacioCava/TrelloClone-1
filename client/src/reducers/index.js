@@ -1,6 +1,6 @@
-import alert, {alertState} from './alert';
-import auth, {authState} from './auth';
-import board, {boardState} from './board';
+import alertReducer, {alert} from './alert';
+import authReducer, {auth} from './auth';
+import boardReducer, {board} from './board';
 
-export const reducers = { alert, auth, board }
-export const states = { alertState, authState, boardState }
+export const reducers = { alertReducer, authReducer, boardReducer }
+export const states = { alert, auth, board }

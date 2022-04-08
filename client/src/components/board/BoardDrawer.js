@@ -21,7 +21,7 @@ import withStore from '../../Store/withStore';
 
 const BoardDrawer = withStore(['board'], ({store}) => {
   const { state } = store;
-  const activity = state.boardState.board.activity
+  const activity = state.board.board.activity
 
   const classes = useStyles();
 

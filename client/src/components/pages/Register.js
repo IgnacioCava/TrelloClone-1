@@ -22,7 +22,7 @@ import withStore from '../../Store/withStore';
 const Register = withStore(['auth', 'alert'], ({store, props}) => {
   const {state, dispatch} = store
   console.log(state)
-  const isAuthenticated = state.authState.isAuthenticated
+  const isAuthenticated = state.auth.isAuthenticated
   if (isAuthenticated) return <Redirect to='/dashboard' />;
 
   const classes = useStyles();

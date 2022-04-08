@@ -3,7 +3,7 @@ import { getBoards } from "./actions/board"
 
 export const Test = withStore(['auth', 'board'], ({store, props}) => {
     const {state, dispatch} = store
-console.log(state)
+
     return (
         <div>
             <h1>Test</h1>

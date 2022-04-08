@@ -12,7 +12,7 @@ import withStore from '../../Store/withStore';
 const Members = withStore(['board'], ({store}) => {
   const { state, dispatch } = store
   
-  const boardMembers = state.boardState.board.members
+  const boardMembers = state.board.board.members
 
   const [inviting, setInviting] = useState(false);
   const [user, setUser] = useState(null);

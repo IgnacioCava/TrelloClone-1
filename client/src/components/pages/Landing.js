@@ -6,7 +6,7 @@ import withStore from '../../Store/withStore';
 const Landing = withStore(['auth'], ({store, props}) => {
   const {state} = store
 
-  const isAuthenticated = state.authState.isAuthenticated
+  const isAuthenticated = state.auth.isAuthenticated
   if (isAuthenticated) return <Redirect to='/dashboard' />;
 
   useEffect(() => {

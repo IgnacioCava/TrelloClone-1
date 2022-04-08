@@ -6,7 +6,7 @@ import withStore from '../../Store/withStore';
 const Navbar = withStore(['auth'],({store}) => {
   const {state, dispatch} = store
   
-  const isAuthenticated = state.authState.isAuthenticated
+  const isAuthenticated = state.auth.isAuthenticated
   if (!isAuthenticated) return ''
 
   return (

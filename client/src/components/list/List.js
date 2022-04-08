@@ -14,7 +14,7 @@ const List = withStore(['board'], ({store, props}) => {
   const { listId, index } = props
   const { state, dispatch } = store
 
-  const list = state.boardState.board.listObjects.find((object) => object._id === listId)
+  const list = state.board.board.listObjects.find((object) => object._id === listId)
 
   const [addingCard, setAddingCard] = useState(false);
 
