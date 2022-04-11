@@ -19,7 +19,7 @@ if (localStorage.token) setAuthToken(localStorage.token);
 const App = () => {
   return (
     <div>
-      <Router>
+      {/* <Router>
         <Fragment>
           <Alert />
           <Switch>
@@ -30,7 +30,7 @@ const App = () => {
             <Route exact path='/board/:id' component={Board} />
           </Switch>
         </Fragment>
-      </Router>
+      </Router> */}
 
       <Test a='1'/>
 
