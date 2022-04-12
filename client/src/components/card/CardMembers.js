@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import PropTypes from 'prop-types';
 import { addCardMember } from '../../actions/board';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';
@@ -10,7 +10,10 @@ const CardMembers = withStore(['board'], ({store, props}) => {
   const { state, dispatch } = store
 
   const boardMembers = state.board.board.members
-  const members = card.members.map((member) => member.user);
+
+  const members = useMemo(() => {
+    return card.members.map((member) => member.user)
+  }, [card.members])
 
   const classes = useStyles();
 
@@ -19,7 +22,7 @@ const CardMembers = withStore(['board'], ({store, props}) => {
       <h3 className={classes.membersTitle}>Members</h3>
       <FormControl component='fieldset'>
         <FormGroup>
-          {boardMembers.map((member) => (
+          {boardMembers?.map((member) => (
             <FormControlLabel
               key={member.user}
               control={

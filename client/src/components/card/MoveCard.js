@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { moveCard } from '../../actions/board';
 
@@ -23,28 +23,32 @@ const MoveCard = withStore(['board'], ({store, props}) => {
   const [positions, setPositions] = useState([0]);
 
   const {lists, cardObjects} = state.board.board;
-  const listObjects = state.board.listObjects.sort(
-    (a, b) => lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
-  ).filter((list) => !list.archived)
+
+  const listObjects = useMemo(() => {
+    return state.board.listObjects.sort(
+      (a, b) => lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
+    ).filter((list) => !list.archived)
+  }, [lists, state.board.listObjects]);
 
   useEffect(() => {
     setListObject(thisList);
     setListTitle(thisList.title);
   }, [thisList, cardId]);
 
+  const unarchivedListCards = useMemo(() => {
+    return listObject.cards.map((id, index) => {
+      const card = cardObjects.find((object) => object._id === id);
+      const position = index;
+      return { card, position };
+    }).filter((card) => !card.card.archived);
+  }, [cardObjects, listObject.cards]);
+
   useEffect(() => {
     if (listObject) {
-      const unarchivedListCards = listObject.cards
-        .map((id, index) => {
-          const card = cardObjects.find((object) => object._id === id);
-          const position = index;
-          return { card, position };
-        })
-        .filter((card) => !card.card.archived);
       let cardPositions = unarchivedListCards.map((card) => card.position);
-      if (listObject !== thisList) {
-        cardPositions = cardPositions.concat(listObject.cards.length);
-      }
+
+      if (listObject!==thisList) cardPositions = cardPositions.concat(listObject.cards.length);
+
       if (listObject.cards.length > 0) {
         setPositions(cardPositions);
         setPosition(thisList.cards.findIndex((id) => id === cardId));
@@ -53,7 +57,7 @@ const MoveCard = withStore(['board'], ({store, props}) => {
         setPosition(0);
       }
     }
-  }, [thisList, cardId, listObject, cardObjects]);
+  }, [thisList, cardId, listObject, unarchivedListCards]);
 
   const onSubmit = async () => {
     dispatch(moveCard(cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position }));

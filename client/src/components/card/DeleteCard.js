@@ -14,7 +14,6 @@ const DeleteCard = withStore(['board'], ({store, props}) => {
 
   const [openDialog, setOpenDialog] = useState(false);
 
-
   const handleClickOpen = () => setOpenDialog(true);
   const handleClose = () => setOpenDialog(false);
 

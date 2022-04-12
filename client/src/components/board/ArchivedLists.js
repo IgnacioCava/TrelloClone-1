@@ -15,8 +15,7 @@ const ArchivedLists = withStore(['board'], ({store}) => {
   return (
     <div>
       <List>
-        {listObjects
-          .filter((list) => list.archived)
+        {listObjects?.filter((list) => list.archived)
           .map((list, index) => (
             <ListItem key={index}>
               <ListItemText primary={list.title} />

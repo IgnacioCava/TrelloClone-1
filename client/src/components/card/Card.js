@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState, useEffect } from 'react';
+import React, { Fragment, useRef, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import { getCard, editCard } from '../../actions/board';
@@ -16,8 +16,10 @@ import withStore from '../../Store/withStore';
 const Card = withStore(['board'], ({store, props}) => {
   const { cardId, list, index } = props
   const { state, dispatch } = store
-  
-  const card = state.board.board.cardObjects.find((object) => object._id === cardId)
+
+  const card = useMemo(() => {
+    return state.board.cardObjects.find((object) => object._id === cardId)
+  }, [state.board.cardObjects, cardId])
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);

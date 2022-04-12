@@ -13,7 +13,7 @@ const CreateCardForm = withStore(['board'], ({store, props}) => {
   const formRef = useRef(null);
 
   useEffect(() => {
-    formRef && formRef.current && formRef.current.scrollIntoView();
+    formRef?.current?.scrollIntoView();
   }, [title]);
 
   const onSubmit = async (e) => {

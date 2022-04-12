@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Redirect } from 'react-router-dom';
 import { setAlert } from '../../actions/alert';
 import { register } from '../../actions/auth';
+import withStore from '../../Store/withStore';
 
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -16,12 +17,10 @@ import Container from '@material-ui/core/Container';
 
 import Copyright from '../other/Copyright';
 import useStyles from '../../utils/formStyles';
-import withStore from '../../Store/withStore';
 
-
-const Register = withStore(['auth', 'alert'], ({store, props}) => {
+const Register = withStore(['auth', 'alert', 'test'], ({store, props}) => {
   const {state, dispatch} = store
-  console.log(state)
+
   const isAuthenticated = state.auth.isAuthenticated
   if (isAuthenticated) return <Redirect to='/dashboard' />;
 

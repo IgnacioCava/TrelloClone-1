@@ -7,6 +7,7 @@ import Dashboard from './components/pages/Dashboard';
 import Board from './components/pages/Board';
 import Alert from './components/other/Alert';
 import {Test} from './test';
+import useStore from './Store/useStore';
 
 // Redux
 import { loadUser } from './actions/auth';
@@ -17,9 +18,12 @@ import './App.css';
 if (localStorage.token) setAuthToken(localStorage.token);
 
 const App = () => {
+  const context = useStore(['auth']).store
+  useEffect(() => {context.dispatch(loadUser())}, []);
+  
   return (
     <div>
-      {/* <Router>
+      <Router>
         <Fragment>
           <Alert />
           <Switch>
@@ -30,7 +34,7 @@ const App = () => {
             <Route exact path='/board/:id' component={Board} />
           </Switch>
         </Fragment>
-      </Router> */}
+      </Router>
 
       <Test a='1'/>
 

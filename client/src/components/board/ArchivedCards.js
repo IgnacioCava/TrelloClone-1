@@ -14,8 +14,7 @@ const ArchivedCards = withStore(['board'], ({store}) => {
   return (
     <div>
       <List>
-        {cardObjects
-          .filter((card) => card.archived)
+        {cardObjects?.filter((card) => card.archived)
           .map((card, index) => (
             <ListItem key={index} className='archived-card'>
               <Card>
@@ -26,7 +25,7 @@ const ArchivedCards = withStore(['board'], ({store}) => {
                   color='secondary'
                   onClick={() =>
                     onDelete(
-                      listObjects.find((list) => list.cards.includes(card._id))._id,
+                      listObjects?.find((list) => list.cards.includes(card._id))._id,
                       card._id
                     )
                   }

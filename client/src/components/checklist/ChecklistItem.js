@@ -23,7 +23,6 @@ const ChecklistItem = withStore(['board'], ({store, props})=> {
   const [text, setText] = useState(item.text);
   const [editing, setEditing] = useState(false);
 
-
   useEffect(() => {
     setText(item.text);
   }, [item.text]);

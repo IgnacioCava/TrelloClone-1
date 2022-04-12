@@ -82,7 +82,7 @@ const BoardDrawer = withStore(['board'], ({store}) => {
               <h3>Activity</h3>
             </div>
             <List>
-              {activity.slice(0, activityChunks * 10).map((activity) => (
+              {activity?.slice(0, activityChunks * 10).map((activity) => (
                 <ListItem key={activity._id}>
                   <ListItemText
                     primary={activity.text}

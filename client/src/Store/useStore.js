@@ -8,18 +8,14 @@ export default function useStore(reducer) {
 	let requestedReducers = {}
 	let requestedStates = {}
 
-	// reducer.forEach(e=>reducers.hasOwnProperty(e+'Reducer') ? requestedReducers[e] = reducers[e+'Reducer'] : null)
+	reducer.forEach(e=>reducers.hasOwnProperty(e+'Reducer') ? requestedReducers[e] = reducers[e+'Reducer'] : null)
+	reducer.forEach(e=>states.hasOwnProperty(e) ? requestedStates[e] = states[e] : null)
 
-	// reducer.forEach(e=>states.hasOwnProperty(e) ? requestedStates[e] = states[e] : null)
-
-	const [state, dispatch] = useReducer(reducers.testReducer, states.test)
-
+	const [state, dispatch] = useReducer(combineReducers(requestedReducers), requestedStates)
+	
 	const store = useMemo(()=>{
-		return { state, dispatch }
-		}, [state, dispatch])
-
-		console.log(store)
+		return { state, dispatch:e=>e(dispatch) }
+	}, [state, dispatch])
 
 	return {store, Context}
-
 }

@@ -3,7 +3,6 @@ export const test = {
   };
 
 export default function testReducer (state = test, action) {
-    console.log(action, state)
   switch (action.type) {
     case 'ADD':
       return {

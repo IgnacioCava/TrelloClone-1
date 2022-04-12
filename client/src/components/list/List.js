@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { getList } from '../../actions/board';
@@ -14,14 +14,15 @@ const List = withStore(['board'], ({store, props}) => {
   const { listId, index } = props
   const { state, dispatch } = store
 
-  const list = state.board.board.listObjects.find((object) => object._id === listId)
-
-  const [addingCard, setAddingCard] = useState(false);
+  const list = useMemo(() => {
+    return state.board.listObjects.find((object) => object._id === listId)
+  }, [state.board.listObjects, listId])
 
   useEffect(() => {
     dispatch(getList(listId));
   }, [dispatch, listId]);
-
+  
+  const [addingCard, setAddingCard] = useState(false);
   const createCardFormRef = useRef(null);
   useEffect(() => {
     addingCard && createCardFormRef.current.scrollIntoView();

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { moveList } from '../../actions/board';
 import withStore from '../../Store/withStore';
@@ -26,18 +26,16 @@ const MoveList = withStore(['board'], ({store, props}) => {
 	const [position, setPosition] = useState(0);
 	const [positions, setPositions] = useState([0]);
 
+	const mappedListObjects = useMemo(() => {
+		return listObjects.sort((a, b) =>
+				lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
+			).map((list, index) => ({ list, index }));
+	}, [listObjects, lists]);
+
 	useEffect(() => {
-	const mappedListObjects = listObjects
-		.sort(
-		(a, b) =>
-			lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
-		)
-		.map((list, index) => ({ list, index }));
-	setPositions(
-		mappedListObjects.filter((list) => !list.list.archived).map((list) => list.index)
-	);
-	setPosition(mappedListObjects.findIndex((list) => list.list._id === listId));
-	}, [lists, listId, listObjects]);
+		setPositions(mappedListObjects?.filter((list) => !list.list.archived).map((list) => list.index));
+		setPosition(mappedListObjects?.findIndex((list) => list.list._id === listId));
+	}, [listId, mappedListObjects]);
 
 	const onSubmit = async () => {
 	dispatch(moveList(listId, { toIndex: position }));

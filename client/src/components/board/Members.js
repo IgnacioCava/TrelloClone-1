@@ -20,7 +20,7 @@ const Members = withStore(['board'], ({store}) => {
   const [users, setUsers] = useState([]);
   
   const searchOptions = users.filter((user) =>
-    boardMembers.find((boardMember) => boardMember.user === user._id) ? false : true
+    boardMembers?.find((boardMember) => boardMember.user === user._id) ? false : true
   );
 
   const handleInputValue = async (newInputValue) => {

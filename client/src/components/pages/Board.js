@@ -42,9 +42,7 @@ const Board = withStore(['board','auth'],({store, props}) => {
           toIndex: destination.index,
         })
       );
-    } else {
-      dispatch(moveList(draggableId, { toIndex: destination.index }));
-    }
+    } else dispatch(moveList(draggableId, { toIndex: destination.index }));
   };
 
   return !board ? (
