@@ -1,7 +1,6 @@
-import React, { Fragment, useState, useEffect, useMemo } from 'react';
+import React, { Fragment, useState, useEffect, useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { moveList } from '../../actions/board';
-import withStore from '../../Store/withStore';
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -13,12 +12,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import useStyles from '../../utils/dialogStyles';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const MoveList = withStore(['board'], ({store, props}) => {
+const MoveList = (props) => {
 	const { listId, closeMenu } = props
-	const { state, dispatch } = store
+	const {board, boardDispatch} = useContext(BoardContext)
 
-	const { lists, listObjects } = state.board.board
+	const { lists, listObjects } = board?.board
 
 	const classes = useStyles();
 
@@ -38,7 +38,7 @@ const MoveList = withStore(['board'], ({store, props}) => {
 	}, [listId, mappedListObjects]);
 
 	const onSubmit = async () => {
-	dispatch(moveList(listId, { toIndex: position }));
+	boardDispatch(moveList(listId, { toIndex: position }));
 	setOpenDialog(false);
 	closeMenu();
 	};
@@ -81,8 +81,8 @@ const MoveList = withStore(['board'], ({store, props}) => {
 		</DialogActions>
 		</Dialog>
 	</Fragment>
-	);
-});
+	)
+}
 
 MoveList.propTypes = {
   listId: PropTypes.string.isRequired,

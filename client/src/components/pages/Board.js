@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useContext } from 'react';
 import { Redirect, useParams } from 'react-router-dom';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { getBoard, moveCard, moveList } from '../../actions/board';
@@ -9,41 +9,40 @@ import List from '../list/List';
 import CreateList from '../board/CreateList';
 import Members from '../board/Members';
 import Navbar from '../other/Navbar';
-import withStore from '../../Store/withStore';
+import { AuthContext } from '../../contexts/AuthStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const Board = withStore(['board','auth'],({store, props}) => {
-  const {state, dispatch} = store
 
-  const board = state.board.board
-  const isAuthenticated = state.auth.isAuthenticated
-  if (!isAuthenticated) return <Redirect to='/' />;
+const Board = () => {
+  const {auth: {isAuthenticated}} = useContext(AuthContext)
+  const {board,  boardDispatch} = useContext(BoardContext)
 
   const {id} = useParams()
+  console.log(board)
+  useEffect(() => {
+    boardDispatch(getBoard(id));
+  }, [id]);
 
   useEffect(() => {
-    dispatch(getBoard(id));
-  }, [dispatch, id]);
-
-  useEffect(() => {
-    if (board?.title) document.title = board.title + ' | TrelloClone';
-  }, [board?.title]);
+    if (board?.board?.title) document.title = board.title + ' | TrelloClone';
+  }, [ board?.board?.title ]);
 
 
   const onDragEnd = (result) => {
     const { source, destination, draggableId, type } = result;
-    if (!destination) {
-      return;
-    }
+    if (!destination) return
     if (type === 'card') {
-      dispatch(
+      boardDispatch(
         moveCard(draggableId, {
           fromId: source.droppableId,
           toId: destination.droppableId,
           toIndex: destination.index,
         })
       );
-    } else dispatch(moveList(draggableId, { toIndex: destination.index }));
+    } else boardDispatch(moveList(draggableId, { toIndex: destination.index }));
   };
+
+  if (!isAuthenticated) return <Redirect to='/' />;
 
   return !board ? (
     <Fragment>
@@ -58,8 +57,8 @@ const Board = withStore(['board','auth'],({store, props}) => {
       style={{
         backgroundImage:
           'url(' +
-          (board.backgroundURL
-            ? board.backgroundURL
+          (board?.board?.backgroundURL
+            ? board?.board?.backgroundURL
             : 'https://images.unsplash.com/photo-1598197748967-b4674cb3c266?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2689&q=80') +
           ')',
       }}
@@ -77,7 +76,7 @@ const Board = withStore(['board','auth'],({store, props}) => {
           <Droppable droppableId='all-lists' direction='horizontal' type='list'>
             {(provided) => (
               <div className='lists' ref={provided.innerRef} {...provided.droppableProps}>
-                {board.lists.map((listId, index) => (
+                {board?.board?.lists.map((listId, index) => (
                   <List key={listId} listId={listId} index={index} />
                 ))}
                 {provided.placeholder}
@@ -89,6 +88,6 @@ const Board = withStore(['board','auth'],({store, props}) => {
       </section>
     </div>
   );
-});
+};
 
 export default Board;

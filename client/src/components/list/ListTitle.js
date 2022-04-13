@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { renameList } from '../../actions/board';
 import { TextField } from '@material-ui/core';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const ListTitle = withStore(['board'], ({store, props}) => {
+const ListTitle = (props) => {
   const { list } = props
-  const { dispatch } = store
+  const { boardDispatch } = useContext(BoardContext)
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(list.title);
@@ -17,7 +17,7 @@ const ListTitle = withStore(['board'], ({store, props}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(renameList(list._id, { title }));
+    boardDispatch(renameList(list._id, { title }));
     setEditing(false);
   };
 
@@ -29,8 +29,8 @@ const ListTitle = withStore(['board'], ({store, props}) => {
     <form onSubmit={onSubmit}>
       <TextField required value={title} onChange={(e) => setTitle(e.target.value)} />
     </form>
-  );
-});
+  )
+}
 
 ListTitle.propTypes = {
   list: PropTypes.object.isRequired,

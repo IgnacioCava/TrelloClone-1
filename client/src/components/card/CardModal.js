@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { GithubPicker } from 'react-color';
 import { editCard, archiveCard } from '../../actions/board';
@@ -9,11 +9,12 @@ import DeleteCard from './DeleteCard';
 import CardMembers from './CardMembers';
 import Checklist from '../checklist/Checklist';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const CardModal = withStore(['board'], ({store, props}) => {
+const CardModal = (props) => {
   const { cardId, open, setOpen, card, list } = props
-  const { dispatch } = store;
+  const {boardDispatch} = useContext(BoardContext)
+
   
   const classes = useStyles();
 
@@ -27,11 +28,11 @@ const CardModal = withStore(['board'], ({store, props}) => {
 
   const onTitleDescriptionSubmit = async (e) => {
     e.preventDefault();
-    dispatch(editCard(cardId, { title, description }));
+    boardDispatch(editCard(cardId, { title, description }));
   };
 
   const onArchiveCard = async () => {
-    dispatch(archiveCard(cardId, true));
+    boardDispatch(archiveCard(cardId, true));
     setOpen(false);
   };
 
@@ -85,12 +86,12 @@ const CardModal = withStore(['board'], ({store, props}) => {
             <h3 className={classes.labelTitle}>Label</h3>
             <GithubPicker
               className={classes.colorPicker}
-              onChange={async (color) => dispatch(editCard(cardId, { label: color.hex }))}
+              onChange={async (color) => boardDispatch(editCard(cardId, { label: color.hex }))}
             />
             <Button
               className={classes.noLabel}
               variant='outlined'
-              onClick={async () => dispatch(editCard(cardId, { label: 'none' }))}
+              onClick={async () => boardDispatch(editCard(cardId, { label: 'none' }))}
             >
               No Label
             </Button>
@@ -112,8 +113,8 @@ const CardModal = withStore(['board'], ({store, props}) => {
         </div>
       </div>
     </Modal>
-  );
-});
+  )
+}
 
 CardModal.propTypes = {
   cardId: PropTypes.string.isRequired,

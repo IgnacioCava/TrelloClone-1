@@ -1,12 +1,11 @@
-import useStore from "./useStore";
 import { useContext } from "react";
-import { Context } from "./useStore";
+import { AuthContext } from "../contexts/AuthStore";
 
-export default function withStore(stores, Component){
+export default function withStore(Component){
+
     return (props) => {
-        const {store, Context} = useStore(stores)
+        const store = useContext(AuthContext)
+        return <Component store={store} props={props} />
         
-        return <Component store={store} context={Context} props={props} />
     };
-
 }

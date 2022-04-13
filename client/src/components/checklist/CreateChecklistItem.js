@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { addChecklistItem } from '../../actions/board';
 import { TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
 
-const CreateChecklistItem = withStore(['board'], ({store, props}) => {
+const CreateChecklistItem = (props) => {
   const { cardId } = props
-  const { dispatch } = store
+  const { boardDispatch } = useContext(BoardContext)
+
 
   const classes = useStyles();
 
@@ -18,7 +19,7 @@ const CreateChecklistItem = withStore(['board'], ({store, props}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addChecklistItem(cardId, { text }));
+    boardDispatch(addChecklistItem(cardId, { text }));
     setText('');
   };
 
@@ -57,8 +58,8 @@ const CreateChecklistItem = withStore(['board'], ({store, props}) => {
         </div>
       </form>
     </div>
-  );
-});
+  )
+}
 
 CreateChecklistItem.propTypes = {
   cardId: PropTypes.string.isRequired,

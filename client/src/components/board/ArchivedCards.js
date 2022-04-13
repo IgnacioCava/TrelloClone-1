@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { archiveCard, deleteCard } from '../../actions/board';
 import { Card, List, ListItem, CardContent, Button } from '@material-ui/core';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const ArchivedCards = withStore(['board'], ({store}) => {
-  const { state, dispatch } = store
+const ArchivedCards = () => {
+  const {board, boardDispatch} = useContext(BoardContext)
 
-  const { cardObjects, listObjects} = state.board.board
 
-  const onDelete = async (listId, cardId) => dispatch(deleteCard(listId, cardId));
-  const onSendBack = async (cardId) => dispatch(archiveCard(cardId, false));
+  const { cardObjects, listObjects} = board?.board
+
+  const onDelete = async (listId, cardId) => boardDispatch(deleteCard(listId, cardId));
+  const onSendBack = async (cardId) => boardDispatch(archiveCard(cardId, false));
 
   return (
     <div>
@@ -38,7 +39,7 @@ const ArchivedCards = withStore(['board'], ({store}) => {
           ))}
       </List>
     </div>
-  );
-});
+  )
+}
 
 export default ArchivedCards;

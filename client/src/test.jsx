@@ -1,9 +1,14 @@
-import withStore from "./Store/withStore"
+
 import { getBoards } from "./actions/board"
 import { add, subtract, add2, subtract2 } from "./actions/test"
+import { useContext, useEffect } from "react"
+import { Context } from "./Store/useStore"
+import { AuthContext } from "./contexts/AuthStore"
 
-export const Test = withStore(['test', 'test2'],({store, props}) => {
-    const {state, dispatch} = store
+export const Test = (props) => {
+    //const {state, dispatch} = store
+    const { state, dispatch } = useContext(AuthContext)
+
     return (
         <div>
             <h1>Test</h1>
@@ -17,4 +22,4 @@ export const Test = withStore(['test', 'test2'],({store, props}) => {
             <button onClick={()=>dispatch(subtract2())}>rest2</button>
         </div>
     )
-})
+}

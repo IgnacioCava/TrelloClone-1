@@ -1,6 +1,6 @@
 // https://github.com/mui-org/material-ui/tree/master/docs/src/pages/getting-started/templates/sign-in
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Redirect } from 'react-router-dom';
 import { login } from '../../actions/auth';
 
@@ -15,12 +15,10 @@ import Container from '@material-ui/core/Container';
 
 import Copyright from '../other/Copyright';
 import useStyles from '../../utils/formStyles';
-import withStore from '../../Store/withStore';
+import { AuthContext } from '../../contexts/AuthStore';
 
-const Login = withStore(['auth'], ({store, props}) => {
-  const {state, dispatch} = store
-  const isAuthenticated = state.auth.isAuthenticated
-  if (isAuthenticated) return <Redirect to='/dashboard' />;
+const Login = () => {
+  const {auth: {isAuthenticated}, dispatch} = useContext(AuthContext)
 
   const classes = useStyles();
 
@@ -41,7 +39,7 @@ const Login = withStore(['auth'], ({store, props}) => {
     e.preventDefault();
     dispatch(login(email, password));
   };
-
+  if (isAuthenticated) return <Redirect to='/dashboard' />;
   return (
     <Container component='main' maxWidth='xs' className={classes.container}>
       <CssBaseline />
@@ -100,6 +98,6 @@ const Login = withStore(['auth'], ({store, props}) => {
       </Box>
     </Container>
   );
-});
+};
 
 export default Login;

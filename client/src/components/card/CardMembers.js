@@ -1,15 +1,16 @@
-import React, {useMemo} from 'react';
+import React, {useMemo, useContext} from 'react';
 import PropTypes from 'prop-types';
 import { addCardMember } from '../../actions/board';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const CardMembers = withStore(['board'], ({store, props}) => {
+const CardMembers = (props) => {
   const { card } = props;
-  const { state, dispatch } = store
+  const {board, boardDispatch} = useContext(BoardContext)
 
-  const boardMembers = state.board.board.members
+
+  const boardMembers = board?.board.members
 
   const members = useMemo(() => {
     return card.members.map((member) => member.user)
@@ -29,7 +30,7 @@ const CardMembers = withStore(['board'], ({store, props}) => {
                 <Checkbox
                   checked={members.indexOf(member.user) !== -1}
                   onChange={async (e) =>
-                    dispatch(
+                    boardDispatch(
                       addCardMember({
                         add: e.target.checked,
                         cardId: card._id,
@@ -46,11 +47,11 @@ const CardMembers = withStore(['board'], ({store, props}) => {
         </FormGroup>
       </FormControl>
     </div>
-  );
-});
+  )
+}
 
 CardMembers.propTypes = {
   card: PropTypes.object.isRequired,
-};
+}
 
-export default CardMembers;
+export default CardMembers

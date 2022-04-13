@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Moment from 'react-moment';
 
 import Drawer from '@material-ui/core/Drawer';
@@ -16,12 +16,13 @@ import ArchiveIcon from '@material-ui/icons/Archive';
 import ArchivedLists from './ArchivedLists';
 import ArchivedCards from './ArchivedCards';
 import useStyles from '../../utils/drawerStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
 
-const BoardDrawer = withStore(['board'], ({store}) => {
-  const { state } = store;
-  const activity = state.board.board.activity
+const BoardDrawer = () => {
+  const { board } = useContext(BoardContext)
+
+  const activity = board?.board?.activity
 
   const classes = useStyles();
 
@@ -93,7 +94,7 @@ const BoardDrawer = withStore(['board'], ({store}) => {
             </List>
             <div className={classes.viewMoreActivityButton}>
               <Button
-                disabled={activityChunks * 10 > activity.length}
+                disabled={activityChunks * 10 > activity?.length}
                 onClick={() => setActivityChunks(activityChunks + 1)}
               >
                 View More Activity
@@ -132,7 +133,7 @@ const BoardDrawer = withStore(['board'], ({store}) => {
         <Divider />
       </Drawer>
     </div>
-  );
-});
+  )
+}
 
 export default BoardDrawer;

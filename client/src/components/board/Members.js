@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { addMember } from '../../actions/board';
 import getInitials from '../../utils/getInitials';
@@ -7,12 +7,14 @@ import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CloseIcon from '@material-ui/icons/Close';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const Members = withStore(['board'], ({store}) => {
-  const { state, dispatch } = store
+
+const Members = () => {
+  const {board, boardDispatch} = useContext(BoardContext)
+
   
-  const boardMembers = state.board.board.members
+  const boardMembers = board?.board?.members
 
   const [inviting, setInviting] = useState(false);
   const [user, setUser] = useState(null);
@@ -32,7 +34,7 @@ const Members = withStore(['board'], ({store}) => {
   };
 
   const onSubmit = async () => {
-    dispatch(addMember(user._id));
+    boardDispatch(addMember(user._id));
     setUser(null);
     setInputValue('');
     setInviting(false);
@@ -41,7 +43,7 @@ const Members = withStore(['board'], ({store}) => {
   return (
     <div className='board-members-wrapper'>
       <div className='board-members'>
-        {boardMembers.map((member) => {
+        {boardMembers?.map((member) => {
           return (
             <Tooltip title={member.name} key={member.user}>
               <Avatar className='avatar'>{getInitials(member.name)}</Avatar>
@@ -83,7 +85,7 @@ const Members = withStore(['board'], ({store}) => {
         </div>
       )}
     </div>
-  );
-});
+  )
+}
 
 export default Members;

@@ -1,13 +1,14 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { addCard } from '../../actions/board';
 import { Card, CardContent, TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const CreateCardForm = withStore(['board'], ({store, props}) => {
+const CreateCardForm = (props) => {
   const { listId, setAdding } = props
-  const { dispatch } = store
+  const { boardDispatch } = useContext(BoardContext)
+
   
   const [title, setTitle] = useState('');
   const formRef = useRef(null);
@@ -18,7 +19,7 @@ const CreateCardForm = withStore(['board'], ({store, props}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addCard({ title, listId }));
+    boardDispatch(addCard({ title, listId }));
     setTitle('');
   };
 
@@ -53,8 +54,8 @@ const CreateCardForm = withStore(['board'], ({store, props}) => {
         </Button>
       </div>
     </form>
-  );
-});
+  )
+}
 
 CreateCardForm.propTypes = {
   listId: PropTypes.string.isRequired,

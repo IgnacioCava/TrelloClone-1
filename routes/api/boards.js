@@ -8,10 +8,7 @@ const User = require('../../models/User');
 const Board = require('../../models/Board');
 
 // Add a board
-router.post(
-  '/',
-  [auth, [check('title', 'Title is required').not().isEmpty()]],
-  async (req, res) => {
+router.post('/', auth, [check('title', 'Title is required').not().isEmpty()], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });

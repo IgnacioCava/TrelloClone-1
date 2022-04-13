@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState, useEffect, useMemo } from 'react';
+import React, { Fragment, useRef, useState, useEffect, useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import { getCard, editCard } from '../../actions/board';
@@ -11,15 +11,15 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import { TextField, CardContent, Button, Avatar, Tooltip } from '@material-ui/core';
 import CardModal from './CardModal';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const Card = withStore(['board'], ({store, props}) => {
+const Card = (props) => {
   const { cardId, list, index } = props
-  const { state, dispatch } = store
+  const {board: {board:{cardObjects}}, boardDispatch} = useContext(BoardContext)
 
   const card = useMemo(() => {
-    return state.board.cardObjects.find((object) => object._id === cardId)
-  }, [state.board.cardObjects, cardId])
+    return cardObjects.find((object) => object._id === cardId)
+  }, [cardObjects, cardId])
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -31,8 +31,8 @@ const Card = withStore(['board'], ({store, props}) => {
   const cardRef = useRef(null);
 
   useEffect(() => {
-    dispatch(getCard(cardId));
-  }, [cardId, dispatch]);
+    boardDispatch(getCard(cardId));
+  }, [cardId, boardDispatch]);
 
   useEffect(() => {
     if (card) {
@@ -53,14 +53,13 @@ const Card = withStore(['board'], ({store, props}) => {
 
   const onSubmitEdit = async (e) => {
     e.preventDefault();
-    dispatch(editCard(cardId, { title }));
+    boardDispatch(editCard(cardId, { title }));
     setEditing(false);
     setMouseOver(false);
   };
 
-  return !card || (card && card.archived) ? (
-    ''
-  ) : (
+  return (!card || (card?.archived)) ? ''
+  : (
     <Fragment>
       <CardModal
         cardId={cardId}
@@ -173,13 +172,13 @@ const Card = withStore(['board'], ({store, props}) => {
         </form>
       )}
     </Fragment>
-  );
-});
+  )
+}
 
 Card.propTypes = {
   cardId: PropTypes.string.isRequired,
   list: PropTypes.object.isRequired,
   index: PropTypes.number.isRequired,
-};
+}
 
 export default Card;

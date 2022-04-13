@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { moveCard } from '../../actions/board';
 
@@ -8,12 +8,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
 
-const MoveCard = withStore(['board'], ({store, props}) => {
+const MoveCard = (props) => {
   const { cardId, setOpen, thisList } = props
-  const { state, dispatch } = store;
+  const {board: {board:{lists, cardObjects}}, board, boardDispatch} = useContext(BoardContext)
+
   
   const classes = useStyles();
 
@@ -22,13 +23,11 @@ const MoveCard = withStore(['board'], ({store, props}) => {
   const [position, setPosition] = useState(0);
   const [positions, setPositions] = useState([0]);
 
-  const {lists, cardObjects} = state.board.board;
-
   const listObjects = useMemo(() => {
-    return state.board.listObjects.sort(
+    return board.listObjects.sort(
       (a, b) => lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
     ).filter((list) => !list.archived)
-  }, [lists, state.board.listObjects]);
+  }, [lists, board.listObjects]);
 
   useEffect(() => {
     setListObject(thisList);
@@ -60,7 +59,7 @@ const MoveCard = withStore(['board'], ({store, props}) => {
   }, [thisList, cardId, listObject, unarchivedListCards]);
 
   const onSubmit = async () => {
-    dispatch(moveCard(cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position }));
+    boardDispatch(moveCard(cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position }));
     setOpen(false);
   };
 
@@ -111,8 +110,8 @@ const MoveCard = withStore(['board'], ({store, props}) => {
         Move Card
       </Button>
     </div>
-  );
-});
+  )
+}
 
 MoveCard.propTypes = {
   cardId: PropTypes.string.isRequired,

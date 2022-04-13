@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { withRouter } from 'react-router-dom';
 import { addBoard } from '../../actions/board';
 import { Modal, TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const CreateBoard = withStore(['board'], ({store, props}) => {
-  const { dispatch } = store
+const CreateBoard = (props) => {
+  const {board, boardDispatch} = useContext(BoardContext)
 
   const classes = useStyles();
   
@@ -16,7 +16,7 @@ const CreateBoard = withStore(['board'], ({store, props}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addBoard({ title }, props.history));
+    boardDispatch(addBoard({ title }));
   };
 
   const body = (
@@ -55,6 +55,6 @@ const CreateBoard = withStore(['board'], ({store, props}) => {
       </Modal>
     </div>
   );
-});
+};
 
 export default withRouter(CreateBoard);

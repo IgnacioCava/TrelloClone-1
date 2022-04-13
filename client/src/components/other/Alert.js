@@ -1,9 +1,12 @@
 import React from 'react';
 import AlertMUI from '@material-ui/lab/Alert';
-import withStore from '../../Store/withStore';
+import { useContext } from 'react';
+import { AuthContext } from '../../contexts/AuthStore';
 
-export const Alert = withStore(['alert'],({store, props}) => {
-  const alerts = store.state.alert
+export const Alert = (props) => {
+  const {alert} = useContext(AuthContext)
+  
+  const alerts = alert
 
   return (
     alerts !== null &&
@@ -14,6 +17,6 @@ export const Alert = withStore(['alert'],({store, props}) => {
       </AlertMUI>
     ))
   );
-})
+}
 
 export default Alert;

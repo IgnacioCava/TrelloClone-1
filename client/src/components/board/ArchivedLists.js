@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { archiveList } from '../../actions/board';
 import List from '@material-ui/core/List';
 import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const ArchivedLists = withStore(['board'], ({store}) => {
-  const { state, dispatch } = store
-  const listObjects = state.board.board.listObjects
+const ArchivedLists = () => {
+  const {board, boardDispatch} = useContext(BoardContext)
 
-  const onSubmit = async (listId) => dispatch(archiveList(listId, false))
+  const listObjects = board?.board.listObjects
+
+  const onSubmit = async (listId) => boardDispatch(archiveList(listId, false))
 
   return (
     <div>
@@ -24,7 +25,7 @@ const ArchivedLists = withStore(['board'], ({store}) => {
           ))}
       </List>
     </div>
-  );
-});
+  )
+}
 
 export default ArchivedLists;

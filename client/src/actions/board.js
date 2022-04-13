@@ -30,6 +30,7 @@ import {
 const config = {
   headers: {
     'Content-Type': 'application/json',
+    'x-auth-token': localStorage.getItem('token'),
   },
 };
 
@@ -93,7 +94,7 @@ export const addBoard = (formData, history) => async (dispatch) => {
   } catch (err) {
     dispatch({
       type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      payload: { msg: err.response, status: err.response },
     });
   }
 };

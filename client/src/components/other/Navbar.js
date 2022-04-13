@@ -1,14 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { logout } from '../../actions/auth';
-import withStore from '../../Store/withStore';
+import { AuthContext } from '../../contexts/AuthStore';
 
-const Navbar = withStore(['auth'],({store}) => {
-  const {state, dispatch} = store
-  
-  const isAuthenticated = state.auth.isAuthenticated
+const Navbar = () => {
+  const {auth: {isAuthenticated}, dispatch} = useContext(AuthContext)
+
   if (!isAuthenticated) return ''
-
   return (
     <nav className='navbar'>
       <Link to='/dashboard'>Home</Link>
@@ -17,7 +15,7 @@ const Navbar = withStore(['auth'],({store}) => {
         Logout
       </Link>
     </nav>
-  );
-});
+  )
+}
 
 export default Navbar;

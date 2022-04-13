@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { renameBoard } from '../../actions/board';
 import { TextField } from '@material-ui/core';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
-const BoardTitle = withStore(['board'], ({store, props})=> {
+const BoardTitle = (props) => {
   const { board } = props;
-  const { dispatch } = store;
+  const { boardDispatch } = useContext(BoardContext)
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(board.title);
@@ -17,7 +17,7 @@ const BoardTitle = withStore(['board'], ({store, props})=> {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(renameBoard(board._id, { title }));
+    boardDispatch(renameBoard(board._id, { title }));
     setEditing(false);
   };
 
@@ -35,8 +35,8 @@ const BoardTitle = withStore(['board'], ({store, props})=> {
         onChange={(e) => setTitle(e.target.value)}
       />
     </form>
-  );
-});
+  )
+}
 
 BoardTitle.propTypes = {
   board: PropTypes.object.isRequired,

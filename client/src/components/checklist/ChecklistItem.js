@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import {
   completeChecklistItem,
@@ -11,12 +11,13 @@ import EditIcon from '@material-ui/icons/Edit';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
 
-const ChecklistItem = withStore(['board'], ({store, props})=> {
+const ChecklistItem = (props) => {
   const { item, card } = props
-  const { dispatch } = store
+  const {boardDispatch} = useContext(BoardContext)
+
 
   const classes = useStyles();
 
@@ -29,12 +30,12 @@ const ChecklistItem = withStore(['board'], ({store, props})=> {
 
   const onEdit = async (e) => {
     e.preventDefault();
-    dispatch(editChecklistItem(card._id, item._id, { text }));
+    boardDispatch(editChecklistItem(card._id, item._id, { text }));
     setEditing(false);
   };
 
   const onComplete = async (e) => {
-    dispatch(
+    boardDispatch(
       completeChecklistItem({
         cardId: card._id,
         complete: e.target.checked,
@@ -44,7 +45,7 @@ const ChecklistItem = withStore(['board'], ({store, props})=> {
   };
 
   const onDelete = async (e) => {
-    dispatch(deleteChecklistItem(card._id, item._id));
+    boardDispatch(deleteChecklistItem(card._id, item._id));
   };
 
   return (
@@ -101,8 +102,8 @@ const ChecklistItem = withStore(['board'], ({store, props})=> {
         </Fragment>
       )}
     </div>
-  );
-});
+  )
+};
 
 ChecklistItem.propTypes = {
   item: PropTypes.object.isRequired,

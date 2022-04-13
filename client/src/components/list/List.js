@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react';
+import React, { useRef, useState, useEffect, useMemo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { getList } from '../../actions/board';
@@ -7,20 +7,21 @@ import ListMenu from './ListMenu';
 import Card from '../card/Card';
 import CreateCardForm from './CreateCardForm';
 import Button from '@material-ui/core/Button';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
 
-const List = withStore(['board'], ({store, props}) => {
+const List = (props) => {
+  const { board, boardDispatch } = useContext(BoardContext)
   const { listId, index } = props
-  const { state, dispatch } = store
+
 
   const list = useMemo(() => {
-    return state.board.listObjects.find((object) => object._id === listId)
-  }, [state.board.listObjects, listId])
+    return board?.listObjects.find((object) => object._id === listId)
+  }, [board?.listObjects, listId])
 
   useEffect(() => {
-    dispatch(getList(listId));
-  }, [dispatch, listId]);
+    boardDispatch(getList(listId));
+  }, [boardDispatch, listId]);
   
   const [addingCard, setAddingCard] = useState(false);
   const createCardFormRef = useRef(null);
@@ -74,8 +75,8 @@ const List = withStore(['board'], ({store, props}) => {
         </div>
       )}
     </Draggable>
-  );
-});
+  )
+}
 
 List.propTypes = {
   listId: PropTypes.string.isRequired,

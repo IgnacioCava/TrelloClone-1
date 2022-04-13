@@ -32,8 +32,10 @@ export const board = {
   error: {},
 };
 
-export default function boardReducer(state=board, action) {
+export default function boardReducer(state, action) {
   const { type, payload } = action;
+
+  console.log(state)
 
   switch (type) {
     case CLEAR_BOARD:
@@ -51,12 +53,12 @@ export default function boardReducer(state=board, action) {
     case GET_BOARD:
       return {
         ...state,
-        board: { ...state.board, ...payload },
+        board: { ...state.board.board, ...payload },
       };
     case ADD_BOARD:
       return {
         ...state,
-        boards: [payload, ...state.boards],
+        boards: state.board.boards.push(payload)
       };
     case BOARD_ERROR:
       return {

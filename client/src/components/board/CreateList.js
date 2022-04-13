@@ -1,12 +1,12 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useContext } from 'react';
 import { addList } from '../../actions/board';
 import { TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import withStore from '../../Store/withStore';
+import { BoardContext } from '../../contexts/BoardStore';
 
+const CreateList = () => {
+  const {board: {board}, boardDispatch} = useContext(BoardContext)
 
-const CreateList = withStore(['board'], ({store}) => {
-  const { dispatch } = store
 
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState('');
@@ -18,7 +18,7 @@ const CreateList = withStore(['board'], ({store}) => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addList({ title }));
+    boardDispatch(addList({ title }));
     setTitle('');
   };
 
@@ -56,7 +56,7 @@ const CreateList = withStore(['board'], ({store}) => {
         </div>
       </form>
     </div>
-  );
-});
+  )
+}
 
 export default CreateList;

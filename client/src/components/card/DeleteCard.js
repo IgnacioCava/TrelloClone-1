@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { deleteCard } from '../../actions/board';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import CloseIcon from '@material-ui/icons/Close';
-import withStore from '../../Store/withStore';
+import CloseIcon from '@material-ui/icons/Close'
+import { BoardContext } from '../../contexts/BoardStore';
 
-const DeleteCard = withStore(['board'], ({store, props}) => {
+const DeleteCard = (props) => {
   const { cardId, setOpen, list } = props
-  const { dispatch } = store;
+  const { boardDispatch } = useContext(BoardContext)
+
 
   const [openDialog, setOpenDialog] = useState(false);
 
@@ -18,7 +19,7 @@ const DeleteCard = withStore(['board'], ({store, props}) => {
   const handleClose = () => setOpenDialog(false);
 
   const onDeleteCard = async () => {
-    dispatch(deleteCard(list._id, cardId));
+    boardDispatch(deleteCard(list._id, cardId));
     setOpenDialog(false);
     setOpen(false);
   };
@@ -40,8 +41,8 @@ const DeleteCard = withStore(['board'], ({store, props}) => {
         </DialogActions>
       </Dialog>
     </div>
-  );
-});
+  )
+}
 
 DeleteCard.propTypes = {
   cardId: PropTypes.string.isRequired,
