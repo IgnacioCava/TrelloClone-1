@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
-
+import { AuthContext } from '../../contexts/AuthStore';
+//import Alert from '../../components/other/Alert';
 
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';

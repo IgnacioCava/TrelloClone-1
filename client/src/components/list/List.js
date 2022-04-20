@@ -15,9 +15,9 @@ const List = ({ listId, index, archived, update }) => {
   const [archivedState, setArchived] = useState();
   const [list, setList] = useState();
 
-  const visualArchive = () => {
-    list.archived = true
-    setArchived(true)
+  const visualArchive = (state) => {
+    list.archived = state
+    setArchived(state)
     update()
   }
 

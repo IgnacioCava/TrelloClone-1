@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
+import { AuthContext } from '../../contexts/AuthStore';
 
 import { GithubPicker } from 'react-color';
 import { Modal, TextField, Button } from '@material-ui/core';
@@ -10,22 +11,37 @@ import DeleteCard from './DeleteCard';
 import CardMembers from './CardMembers';
 import Checklist from '../checklist/Checklist';
 import useStyles from '../../utils/modalStyles';
+//import Alert from '../../components/other/Alert';
 
-const CardModal = ({ cardId, open, setOpen, card, list, setList, update, visualArchive }) => {
+const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, update, title, setTitle }) => {
   const { editCard, archiveCard } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
 
   const classes = useStyles();
-  const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
 
   const onTitleDescriptionSubmit = async (e) => {
     e.preventDefault();
-    editCard(cardId, { title, description })
+    try{
+      await editCard(cardId, {title, description});
+      setAlert('Card edited successfully', 'success')
+    } catch(err) {
+      setTitle(card.title);
+      setAlert('An error ocurred while editing the card', 'error');
+    }
+    update()
   };
 
   const onArchiveCard = async () => {
     setOpen(false);
-    archiveCard(cardId, true)
+    visualArchive(true)
+    try{
+      await archiveCard(cardId, true)
+      setAlert('Card archived successfully', 'success')
+    } catch(err) {
+      visualArchive(false)
+      setAlert('An error ocurred while archiving the card', 'error');
+    }
   };
 
   return (
@@ -58,19 +74,22 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, update, visualA
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <Button
-            type='submit'
-            variant='contained'
-            color='primary'
-            disabled={
-              title === card.title &&
-              (description === card.description ||
-                (description === '' && !card.description))
-            }
-            className={classes.button}
-          >
-            Save All Changes
-          </Button>
+          <>
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              disabled={
+                title === card.title &&
+                (description === card.description ||
+                  (description === '' && !card.description))
+              }
+              className={classes.button}
+            >
+              Save All Changes
+            </Button>
+            {/* <Alert/> */}
+          </>
         </form>
         <div className={classes.modalSection}>
           <CardMembers card={card} />
@@ -91,15 +110,12 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, update, visualA
         </div>
         <Checklist card={card} />
         <div className={classes.modalSection}>
-          <MoveCard cardId={cardId} setOpen={setOpen} thisList={list} />
+          <MoveCard cardId={cardId} setOpen={setOpen} thisList={list} setList={setList} update={update}/>
           <div className={classes.modalBottomRight}>
             <Button
               variant='contained'
               className={classes.archiveButton}
-              onClick={()=>{
-                visualArchive()
-                onArchiveCard()
-              }}
+              onClick={onArchiveCard}
             >
               Archive Card
             </Button>

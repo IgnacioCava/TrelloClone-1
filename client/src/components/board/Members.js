@@ -1,16 +1,20 @@
 import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import getInitials from '../../utils/getInitials';
+import { BoardContext } from '../../contexts/BoardStore';
+import { AuthContext } from '../../contexts/AuthStore';
+
 import { TextField, Button } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CloseIcon from '@material-ui/icons/Close';
-import { BoardContext } from '../../contexts/BoardStore';
-import { useEffect } from 'react';
+//import Alert from '../../components/other/Alert';
+
 
 const Members = () => {
   const { board: {board: {members}}, addMember } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
 
   const [inviting, setInviting] = useState(false);
   const [user, setUser] = useState(null);
@@ -29,11 +33,17 @@ const Members = () => {
   };
 
   const onSubmit = async () => {
-    setMembers(user.concat(memberList));
-    setUser(null);
-    setInputValue('');
+    setMembers(memberList.concat(user));
     setInviting(false);
-    addMember(user._id);
+    setInputValue('');
+    setUsers([]);
+    try {
+      await addMember(user._id);
+      setAlert('Member added successfully', 'success');
+    } catch(err){
+      setMembers(members);
+      setAlert('An error ocurred while inviting the user', 'error')
+    }
   };
 
   return (
@@ -51,6 +61,7 @@ const Members = () => {
         <Button className='invite' variant='contained' onClick={() => setInviting(true)}>
           Invite
         </Button>
+        // <Alert/>
       ) : (
         <div className='invite'>
           <Autocomplete

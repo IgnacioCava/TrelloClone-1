@@ -1,10 +1,14 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
+import { AuthContext } from '../../contexts/AuthStore';
+//import Alert from '../../components/other/Alert';
+
 
 const ListTitle = ({ list }) => {
   const { renameList } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(list.title);
@@ -12,13 +16,22 @@ const ListTitle = ({ list }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
     setEditing(false);
-    renameList(list._id, { title })
+    try{
+      await renameList(list._id, { title })
+      setAlert('List renamed successfully', 'success')
+    } catch(err){
+      setTitle(list.title);
+      setAlert('An error ocurred while renaming the list', 'error')
+    }
   };
 
   return !editing ? (
-    <h3 className='list-title' onClick={() => setEditing(true)}>
-      {title}
-    </h3>
+    <>
+      <h3 className='list-title' onClick={() => setEditing(true)}>
+        {title}
+      </h3>
+      {/* <Alert/> */}
+    </>
   ) : (
     <form onSubmit={onSubmit}>
       <TextField required value={title} onChange={(e) => setTitle(e.target.value)}/>

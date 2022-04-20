@@ -6,25 +6,34 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CloseIcon from '@material-ui/icons/Close';
 import { BoardContext } from '../../contexts/BoardStore';
+import { AuthContext } from '../../contexts/AuthStore';
+
 
 const DeleteCard = ({ cardId, setOpen, list, setList }) => {
   const { deleteCard } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
+
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const handleClickOpen = () => setOpenDialog(true);
-
   const handleClose = () => setOpenDialog(false);
 
-
-  const visualDelete = () => {
-    setList({...list, cards:list.cards.filter(card => card !== cardId)});
-  }
+  const visualDelete = () => setList({...list, cards:list.cards.filter(card => card !== cardId)});
+  const undoDelete = (lastList) => setList(lastList);
 
   const onDeleteCard = async () => {
-    deleteCard(list._id, cardId);
-    setOpenDialog(false);
-    setOpen(false);
+    const prevList = {...list}
+    visualDelete()
+    setOpenDialog(false)
+    setOpen(false)
+    try{
+      await deleteCard(list._id, cardId);
+      setAlert('Card deleted successfully', 'success')
+    } catch(err) {
+      undoDelete(prevList)
+      setAlert('An error ocurred while deleting the card', 'error');
+    }
   };
 
   return (
@@ -35,10 +44,7 @@ const DeleteCard = ({ cardId, setOpen, list, setList }) => {
       <Dialog open={openDialog} onClose={handleClose}>
         <DialogTitle>{'Delete card?'}</DialogTitle>
         <DialogActions>
-          <Button onClick={(e)=>{
-            visualDelete()
-            onDeleteCard(e)
-            }} variant='contained' color='secondary' autoFocus>
+          <Button onClick={onDeleteCard} variant='contained' color='secondary' autoFocus>
             Delete
           </Button>
           <Button onClick={handleClose}>

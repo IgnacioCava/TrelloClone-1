@@ -1,8 +1,10 @@
 import React, { Fragment, useRef, useState, useEffect, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
+import { AuthContext } from '../../contexts/AuthStore';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import getInitials from '../../utils/getInitials';
+
 import CardMUI from '@material-ui/core/Card';
 import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
@@ -10,9 +12,11 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import { TextField, CardContent, Button, Avatar, Tooltip } from '@material-ui/core';
 import CardModal from './CardModal';
+//import Alert from '../../components/other/Alert';
 
 const Card = ({ list, setList, cardId, index, update, archived }) => {
   const { board: {board: {cardObjects}}, getCard, editCard } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -24,6 +28,7 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
   const cardRef = useRef(null);
 
   const card = cardObjects.find((object) => object._id === cardId)
+
   useEffect(() => {
     getCard(cardId)
   }, [cardId]);
@@ -32,9 +37,9 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
     setArchived(!!card?.archived)
   }, [card?.archived, archived]);
 
-  const visualArchive = () => {
-    card.archived = true
-    setArchived(true)
+  const visualArchive = (state) => {
+    card.archived = state
+    setArchived(state)
     update()
   }
 
@@ -57,9 +62,16 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
 
   const onSubmitEdit = async (e) => {
     e.preventDefault();
-    editCard(cardId, { title })
     setEditing(false);
     setMouseOver(false);
+    update()
+    try{
+      await editCard(cardId, { title })
+      setAlert('Card\'s title edited successfully', 'success')
+    } catch(err){
+      setTitle(card.title)
+      setAlert('An error ocurred while editing the card\'s title', 'error')
+    }
   };
 
   return !card || archivedState ? (
@@ -75,6 +87,8 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
         setList={setList}
         visualArchive={visualArchive}
         update={update}
+        title = {title}
+        setTitle= {setTitle}
       />
       {!editing ? (
         <Draggable draggableId={cardId} index={index}>
@@ -145,6 +159,7 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
               </CardContent>
             </CardMUI>
           )}
+          {/* <Alert/> */}
         </Draggable>
       ) : (
         <form className='create-card-form' onSubmit={onSubmitEdit}>

@@ -1,24 +1,36 @@
 import {useContext, useState} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
+import { AuthContext } from '../../contexts/AuthStore';
+
 
 import PropTypes from 'prop-types';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';
 import useStyles from '../../utils/modalStyles';
-import { useEffect } from 'react';
+//import Alert from '../../components/other/Alert';
+
 
 const CardMembers = ({ card }) => {
   const { board: {board: {members}}, addCardMember } = useContext(BoardContext);
+  const { setAlert } = useContext(AuthContext);
 
   const [cardMembers, setMembers] = useState(card.members.map((member) => member.user));
 
   const classes = useStyles();
 
   const addMember = async (e) => {
-    addCardMember({
-      add: e.target.checked,
-      cardId: card._id,
-      userId: e.target.name,
-    })
+    e.persist()
+    visualMemberHandler(e.target.name);
+    try{
+      await addCardMember({
+        add: e.target.checked,
+        cardId: card._id,
+        userId: e.target.name,
+      })
+      setAlert(`Member ${e.target.checked?'added':'removed'} successfully`, 'success')
+    } catch(err){
+      setMembers(members)
+      setAlert('An error ocurred while adding the user', 'error')
+    }
   }
   const visualMemberHandler = (member) => {
     let foundMember = cardMembers.find((memberId) => memberId === member)
@@ -29,6 +41,7 @@ const CardMembers = ({ card }) => {
     <div>
       <h3 className={classes.membersTitle}>Members</h3>
       <FormControl component='fieldset'>
+        {/* <Alert/> */}
         <FormGroup>
           {members.map((member) => (
             <FormControlLabel
@@ -36,10 +49,7 @@ const CardMembers = ({ card }) => {
               control={
                 <Checkbox
                   checked={cardMembers.indexOf(member.user) !== -1}
-                  onChange={(e) =>{
-                    visualMemberHandler(member.user)
-                    addMember(e)
-                  }}
+                  onChange={addMember}
                   name={member.user}
                 />
               }
