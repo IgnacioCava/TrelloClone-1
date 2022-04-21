@@ -9,7 +9,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 const Dashboard = memo(() => {
   const { auth: {isAuthenticated, user}, loadUser } = useContext(AuthContext);
   const { board: {boards, dashboardLoading}, getBoards } = useContext(BoardContext);
-console.log('dash')
   useEffect(() => {
     loadUser() // For some reason, if a user logs out and then logs in, the app doesn't recognize the token in localStorage. Having loadUser both here and in App.js fixes it.
     getBoards();

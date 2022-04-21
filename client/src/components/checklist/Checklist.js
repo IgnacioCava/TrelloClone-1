@@ -10,8 +10,6 @@ const Checklist = ({ card }) => {
 
   const [checklist, setChecklist] = useState(card.checklist);
 
-  console.log(checklist)
-
   return (
     <Fragment>
       <h3 className={classes.header}>Checklist</h3>

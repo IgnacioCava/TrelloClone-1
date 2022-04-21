@@ -19,7 +19,6 @@ const ArchivedCards = memo(({update}) => {
 
   const visualDelete = cardId => {
     setArchivedCards(cardObjects.filter((object) => object._id !== cardId))
-    console.log(archivedCards)
     setLastDelete(cardObjects.find((object) => object._id === cardId))
   }
 
