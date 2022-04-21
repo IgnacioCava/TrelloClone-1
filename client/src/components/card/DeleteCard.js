@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -13,16 +13,12 @@ const DeleteCard = ({ cardId, setOpen, list, setList }) => {
   const { deleteCard } = useContext(BoardContext);
   const { setAlert } = useContext(AuthContext);
 
-
   const [openDialog, setOpenDialog] = useState(false);
-
-  const handleClickOpen = () => setOpenDialog(true);
-  const handleClose = () => setOpenDialog(false);
 
   const visualDelete = () => setList({...list, cards:list.cards.filter(card => card !== cardId)});
   const undoDelete = (lastList) => setList(lastList);
 
-  const onDeleteCard = async () => {
+  const onDeleteCard = useCallback(async () => {
     const prevList = {...list}
     visualDelete()
     setOpenDialog(false)
@@ -34,20 +30,20 @@ const DeleteCard = ({ cardId, setOpen, list, setList }) => {
       undoDelete(prevList)
       setAlert('An error ocurred while deleting the card', 'error');
     }
-  };
+  }, [cardId, list])
 
   return (
     <div>
-      <Button variant='contained' color='secondary' onClick={handleClickOpen}>
+      <Button variant='contained' color='secondary' onClick={()=>setOpenDialog(true)}>
         Delete Card
       </Button>
-      <Dialog open={openDialog} onClose={handleClose}>
+      <Dialog open={openDialog} onClose={()=>setOpenDialog(false)}>
         <DialogTitle>{'Delete card?'}</DialogTitle>
         <DialogActions>
           <Button onClick={onDeleteCard} variant='contained' color='secondary' autoFocus>
             Delete
           </Button>
-          <Button onClick={handleClose}>
+          <Button onClick={()=>setOpenDialog(false)}>
             <CloseIcon />
           </Button>
         </DialogActions>

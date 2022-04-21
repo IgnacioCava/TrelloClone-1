@@ -6,12 +6,13 @@ import { AuthContext } from '../../contexts/AuthStore';
 const Alert = () => {
   const { alert } = useContext(AuthContext);
 
+  let lastAlert = alert&&alert[alert.length-1]
   return (
     alert !== null &&
     alert.length > 0 &&
 
-    <AlertMUI severity={alert[0].alertType} key={alert[0].id}>
-      {alert[0].msg}
+    <AlertMUI severity={lastAlert.alertType} key={lastAlert.id}>
+      {lastAlert.msg}
     </AlertMUI>
     
   );

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext, memo } from 'react';
 import Moment from 'react-moment';
 
 import Drawer from '@material-ui/core/Drawer';
@@ -18,7 +18,7 @@ import ArchivedCards from './ArchivedCards';
 import useStyles from '../../utils/drawerStyles';
 import { BoardContext } from '../../contexts/BoardStore';
 
-const BoardDrawer = ({update}) => {
+const BoardDrawer = memo(({update}) => {
   const { board: {board: {activity}} } = useContext(BoardContext);
 
   const classes = useStyles();
@@ -129,6 +129,6 @@ const BoardDrawer = ({update}) => {
       </Drawer>
     </div>
   );
-};
+})
 
 export default BoardDrawer;

@@ -17,7 +17,7 @@ export default function App() {
 
   const {loadUser} = useContext(AuthContext)
   useEffect(() => {
-      loadUser();
+    if(localStorage.token) loadUser();
   }, []);
 
   return (

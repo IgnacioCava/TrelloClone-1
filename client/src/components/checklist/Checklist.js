@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react';
+import { Fragment, useState, memo } from 'react';
 import PropTypes from 'prop-types';
 import CreateChecklistItem from './CreateChecklistItem';
 import ChecklistItem from './ChecklistItem';
@@ -9,6 +9,8 @@ const Checklist = ({ card }) => {
   const classes = useStyles();
 
   const [checklist, setChecklist] = useState(card.checklist);
+
+  console.log(checklist)
 
   return (
     <Fragment>
@@ -23,7 +25,7 @@ const Checklist = ({ card }) => {
       <CreateChecklistItem cardId={card._id} updateList={setChecklist} list={checklist}/>
     </Fragment>
   );
-};
+}
 
 Checklist.propTypes = {
   card: PropTypes.object.isRequired,

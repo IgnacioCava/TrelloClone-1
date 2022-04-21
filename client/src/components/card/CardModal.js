@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
@@ -20,19 +20,19 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, 
   const classes = useStyles();
   const [description, setDescription] = useState(card.description);
 
-  const onTitleDescriptionSubmit = async (e) => {
-    e.preventDefault();
-    try{
-      await editCard(cardId, {title, description});
-      setAlert('Card edited successfully', 'success')
-    } catch(err) {
-      setTitle(card.title);
-      setAlert('An error ocurred while editing the card', 'error');
-    }
-    update()
-  };
+  const onTitleDescriptionSubmit = useCallback(async (e) => {
+      e.preventDefault();
+      try{
+        await editCard(cardId, {title, description});
+        setAlert('Card edited successfully', 'success')
+      } catch(err) {
+        setTitle(card.title);
+        setAlert('An error ocurred while editing the card', 'error');
+      }
+      update()
+    } , [cardId, title, description, editCard, setAlert, update, setTitle, card.title]);
 
-  const onArchiveCard = async () => {
+  const onArchiveCard = useCallback(async () => {
     setOpen(false);
     visualArchive(true)
     try{
@@ -42,7 +42,7 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, 
       visualArchive(false)
       setAlert('An error ocurred while archiving the card', 'error');
     }
-  };
+  } , [cardId, visualArchive])
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>

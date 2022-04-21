@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext } from 'react';
+import React, { Fragment, useState, useContext, useCallback } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
@@ -20,7 +20,7 @@ const ChecklistItem = ({ item, card, updateList, list }) => {
   const [editing, setEditing] = useState(false);
   const [checked, setChecked] = useState(item.complete);
 
-  const onEdit = async (e) => {
+  const onEdit = useCallback(async (e) => {
     e.preventDefault();
     setEditing(false);
     try{
@@ -29,9 +29,13 @@ const ChecklistItem = ({ item, card, updateList, list }) => {
     } catch(err){
       setAlert('An error ocurred while editing the checklist item', 'error')
     }
+  }, [card._id, item._id, text])
+
+  const visualCheck = (e) => {
+    setChecked(!checked);
   };
 
-  const onComplete = async (e) => {
+  const onComplete = useCallback(async (e) => {
     visualCheck()
     try{
       await completeChecklistItem({
@@ -44,13 +48,12 @@ const ChecklistItem = ({ item, card, updateList, list }) => {
       visualCheck()
       setAlert('An error ocurred while completing the checklist item', 'error')
     }
-  };
+  }, [card._id, item._id, visualCheck])
 
-  const visualCheck = (e) => {
-    setChecked(!checked);
-  };
+  const visualDelete = () => updateList(list.filter(e=>e._id!==item._id));
+  const undoDelete = (lastList) => updateList(lastList);
 
-  const onDelete = async (e) => {
+  const onDelete = useCallback(async (e) => {
     const prevList = {...list}
     visualDelete()
     try{
@@ -61,10 +64,8 @@ const ChecklistItem = ({ item, card, updateList, list }) => {
       setAlert('An error ocurred while deleting the checklist item', 'error')
     }
     
-  };
+  }, [card._id, item._id, visualDelete, undoDelete])
 
-  const visualDelete = () => updateList(list.filter(e=>e._id!==item._id));
-  const undoDelete = (lastList) => updateList(lastList);
 
   return (
     <div className={classes.checklistItem}>

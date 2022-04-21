@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
 import axios from 'axios';
 import getInitials from '../../utils/getInitials';
 import { BoardContext } from '../../contexts/BoardStore';
@@ -22,7 +22,9 @@ const Members = () => {
   const [users, setUsers] = useState([]);
   const [memberList, setMembers] = useState(members);
 
-  const searchOptions = users.filter((user) => members.find((boardMember) => boardMember.user === user._id) ? false : true)
+  const searchOptions = useMemo(() => {
+    return users.filter((user) => members.find((boardMember) => boardMember.user === user._id))
+  }, [users, members]);
 
   const handleInputValue = async (newInputValue) => {
     setInputValue(newInputValue);
@@ -32,7 +34,7 @@ const Members = () => {
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = useCallback(async () => {
     setMembers(memberList.concat(user));
     setInviting(false);
     setInputValue('');
@@ -44,7 +46,7 @@ const Members = () => {
       setMembers(members);
       setAlert('An error ocurred while inviting the user', 'error')
     }
-  };
+  }, [user, memberList, members]);
 
   return (
     <div className='board-members-wrapper'>

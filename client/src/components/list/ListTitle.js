@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
@@ -13,7 +13,7 @@ const ListTitle = ({ list }) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(list.title);
   
-  const onSubmit = async (e) => {
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     setEditing(false);
     try{
@@ -23,7 +23,7 @@ const ListTitle = ({ list }) => {
       setTitle(list.title);
       setAlert('An error ocurred while renaming the list', 'error')
     }
-  };
+  }, [list._id, title])
 
   return !editing ? (
     <>

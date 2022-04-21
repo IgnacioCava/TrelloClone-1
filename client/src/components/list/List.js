@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
@@ -85,7 +85,7 @@ const List = ({ listId, index, archived, update }) => {
       )}
     </Draggable>
   );
-};
+}
 
 List.propTypes = {
   listId: PropTypes.string.isRequired,

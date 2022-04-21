@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, memo, useCallback } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
 
@@ -9,12 +9,16 @@ import ListItemText from '@material-ui/core/ListItemText';
 //import Alert from '../../components/other/Alert';
 
 
-const ArchivedLists = ({update}) => {
+const ArchivedLists = memo(({update}) => {
   const { board: {board: {listObjects}}, archiveList } = useContext(BoardContext);
   const { setAlert } = useContext(AuthContext);
 
+  const visualUnarchive = (list, state) => {
+    list.archived = !state
+    update()
+  }
 
-  const unarchive = async (list) => {
+  const unarchive = useCallback(async (list) => {
     visualUnarchive(list, true)
     try{
       await archiveList(list._id, false)
@@ -23,12 +27,8 @@ const ArchivedLists = ({update}) => {
       visualUnarchive(list, false)
       setAlert('An error ocurred while restoring the list', 'error')
     }
-  }
-  
-  const visualUnarchive = (list, state) => {
-    list.archived = !state
-    update()
-  }
+  }, [visualUnarchive])
+  //Restoring lists on quick succession essentially forces an error from the server. I'll fix this on the backend branch
 
   return (
     <div>
@@ -46,6 +46,6 @@ const ArchivedLists = ({update}) => {
       </List>
     </div>
   );
-};
+})
 
 export default ArchivedLists;

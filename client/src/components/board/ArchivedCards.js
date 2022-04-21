@@ -1,11 +1,11 @@
-import React, {useContext, useState, useEffect} from 'react';
+import {useContext, useState, useEffect, useCallback, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
 //import Alert from '../../components/other/Alert';
 
 import { Card, List, ListItem, CardContent, Button } from '@material-ui/core';
 
-const ArchivedCards = ({update}) => {
+const ArchivedCards = memo(({update}) => {
   const { board: {board: {listObjects, cardObjects}}, archiveCard, deleteCard } = useContext(BoardContext);
   const { setAlert } = useContext(AuthContext);
 
@@ -15,20 +15,11 @@ const ArchivedCards = ({update}) => {
 
   useEffect(() => {
     setArchivedCards(cardObjects)
-  }, [cardObjects])
+  }, [cardObjects,listObjects])
 
-  const onDelete = async (listId, cardId) => {
-    visualDelete(cardId)
-    try{
-      await deleteCard(listId, cardId)
-      setAlert('Card deleted successfully', 'success')
-    } catch(err){
-      undoDelete()
-    }
-  };
-
-  const visualDelete = (cardId) => {
+  const visualDelete = cardId => {
     setArchivedCards(cardObjects.filter((object) => object._id !== cardId))
+    console.log(archivedCards)
     setLastDelete(cardObjects.find((object) => object._id === cardId))
   }
 
@@ -38,7 +29,23 @@ const ArchivedCards = ({update}) => {
     setAlert('An error ocurred while deleting the card', 'error')
   }
 
-  const onSendBack = async (card) => {
+  const onDelete = useCallback(async (listId, cardId) => {
+    visualDelete(cardId)
+    try{
+      await deleteCard(listId, cardId)
+      setAlert('Card deleted successfully', 'success')
+    } catch(err){
+      undoDelete()
+    }
+  }, [visualDelete, undoDelete])
+  //Deleting cards on quick succession essentially forces an error from the server. I'll fix this on the backend branch
+
+  const visualUnarchive = (card, state) => {
+    card.archived = !state
+    update()
+  }
+
+  const onSendBack = useCallback(async (card) => {
     visualUnarchive(card, true)
     try{
       await archiveCard(card._id, false)
@@ -47,12 +54,7 @@ const ArchivedCards = ({update}) => {
       visualUnarchive(card, false)
       setAlert('An error ocurred while restoring the card', 'error')
     }
-  };
-  
-  const visualUnarchive = (card, state) => {
-    card.archived = !state
-    update()
-  }
+  }, [visualUnarchive])
 
   return (
     <div>
@@ -80,6 +82,6 @@ const ArchivedCards = ({update}) => {
       </List>
     </div>
   );
-};
+})
 
 export default ArchivedCards;

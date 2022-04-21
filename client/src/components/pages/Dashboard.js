@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, memo } from 'react';
 import { Redirect, Link } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthStore';
 import { BoardContext } from '../../contexts/BoardStore';
@@ -6,10 +6,10 @@ import CreateBoard from '../other/CreateBoard';
 import Navbar from '../other/Navbar';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const Dashboard = () => {
+const Dashboard = memo(() => {
   const { auth: {isAuthenticated, user}, loadUser } = useContext(AuthContext);
   const { board: {boards, dashboardLoading}, getBoards } = useContext(BoardContext);
-
+console.log('dash')
   useEffect(() => {
     loadUser() // For some reason, if a user logs out and then logs in, the app doesn't recognize the token in localStorage. Having loadUser both here and in App.js fixes it.
     getBoards();
@@ -39,6 +39,6 @@ const Dashboard = () => {
       </section>
     </div>
   )
-};
+}) 
 
 export default Dashboard;

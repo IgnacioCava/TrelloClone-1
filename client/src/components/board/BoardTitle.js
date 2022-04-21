@@ -1,11 +1,11 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, memo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
 //import Alert from '../../components/other/Alert';
 
-const BoardTitle = ({ board }) => {
+const BoardTitle = memo(({ board }) => {
   const { renameBoard } = useContext(BoardContext);
   const { setAlert } = useContext(AuthContext);
 
@@ -14,7 +14,7 @@ const BoardTitle = ({ board }) => {
 
   document.title = title + ' | TrelloClone';
 
-  const onSubmit = async (e) => {
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     setEditing(false);
     try{
@@ -24,7 +24,7 @@ const BoardTitle = ({ board }) => {
       setTitle(board.title);
       setAlert('An error ocurred while updating the board title', 'error');
     }
-  };
+  }, [board, title]);
 
   return !editing ? (
     <h2 className='board-title' onClick={() => setEditing(true)}>
@@ -42,7 +42,7 @@ const BoardTitle = ({ board }) => {
       />
     </form>
   );
-};
+});
 
 BoardTitle.propTypes = {
   board: PropTypes.object.isRequired,

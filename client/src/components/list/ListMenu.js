@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext, useCallback, memo } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
@@ -13,45 +13,41 @@ const ListMenu = ({ listId, visualArchive }) => {
   
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleClick = (event) => setAnchorEl(event.currentTarget);
-  const handleClose = () => setAnchorEl(null);
-
   const archive = async () => {
     visualArchive(true)
-    handleClose()
+    setAnchorEl(null)
     try{
       await archiveList(listId, true)
       setAlert('List archived successfully', 'success')
     } catch(err){
       visualArchive(false)
       setAlert('An error ocurred while archiving the list', 'error')
-    }
-  }
+    }}
 
   return (
     <div>
-      <Button onClick={handleClick}>
+      <Button onClick={e => setAnchorEl(e.currentTarget)}>
         <MoreHorizIcon />
       </Button>
       <Menu
         anchorEl={anchorEl}
         keepMounted
         open={Boolean(anchorEl)}
-        onClose={handleClose}
+        onClose={() => setAnchorEl(null)}
       >
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={() => setAnchorEl(null)}>
           <MoreHorizIcon />
         </MenuItem>
         <MenuItem onClick={archive}>
           Archive This List
         </MenuItem>
         <MenuItem>
-          <MoveList listId={listId} closeMenu={handleClose} />
+          <MoveList listId={listId} closeMenu={() => setAnchorEl(null)} />
         </MenuItem>
       </Menu>
     </div>
   );
-};
+}
 
 ListMenu.propTypes = {
   listId: PropTypes.string.isRequired,

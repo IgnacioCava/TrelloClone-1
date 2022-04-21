@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
@@ -16,7 +16,7 @@ const CreateChecklistItem = ({ cardId, updateList, list }) => {
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState('');
 
-  const onSubmit = async (e) => {
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
     setText('');
     const prevList = {...list}
@@ -28,7 +28,7 @@ const CreateChecklistItem = ({ cardId, updateList, list }) => {
       updateList(prevList)
       setAlert('An error ocurred while adding the checklist item', 'error')
     }
-  };
+  }, [cardId, text])
 
   return !adding ? (
     <div className={classes.checklistBottom}>

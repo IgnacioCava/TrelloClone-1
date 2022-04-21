@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useContext, useState } from 'react';
+import { Fragment, useEffect, useContext, useState, useMemo } from 'react';
 import { Redirect } from 'react-router-dom';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { CircularProgress, Box } from '@material-ui/core';
@@ -17,21 +17,27 @@ const Board = ({ match }) => {
 
   const [force, UpdateArchive] = useState(false);
 
-  const [backgroundURL, lists] = [board?.backgroundURL, board?.lists]
+  const [backgroundURL, listElements] = useMemo(() => {
+    if (board) {
+      const { backgroundURL, lists } = board;
+      const listElements = lists.map((listId, index, archived) => <List key={listId} listId={listId} index={index} archived={archived} update={()=>UpdateArchive(!force)} />)
+      return [backgroundURL, listElements];
+    }
+    return [null, null];
+  }, [board, force]);
 
   const defaultBackground = 'https://images.unsplash.com/photo-1598197748967-b4674cb3c266?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2689&q=80'
   
   useEffect(() => {
     getBoard(match.params.id)
   }, [match.params.id]);
-
+  
   if (!isAuthenticated) return <Redirect to='/' />
 
   const onDragEnd = (result) => {
     const { source, destination, draggableId, type } = result;
 
     if (!destination) return
-
     if (type === 'card') {
       moveCard(draggableId, {
           fromId: source.droppableId,
@@ -40,6 +46,7 @@ const Board = ({ match }) => {
         })
     } else moveList(draggableId, { toIndex: destination.index })
   };
+
 
   return !board ? (
     <Fragment>
@@ -68,9 +75,7 @@ const Board = ({ match }) => {
           <Droppable droppableId='all-lists' direction='horizontal' type='list'>
             {(provided) => (
               <div className='lists' ref={provided.innerRef} {...provided.droppableProps}>
-                {lists.map((listId, index, archived) => (
-                  <List key={listId} listId={listId} index={index} archived={archived} update={()=>UpdateArchive(!force)} />
-                ))}
+                {listElements}
                 {provided.placeholder}
                 <CreateList />
               </div>

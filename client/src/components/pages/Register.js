@@ -1,6 +1,6 @@
 // https://github.com/mui-org/material-ui/tree/master/docs/src/pages/getting-started/templates/sign-up
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { Redirect } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthStore';
 import Button from '@material-ui/core/Button';
@@ -30,22 +30,20 @@ const Register = () => {
     document.title = 'TrelloClone | Sign Up';
   }, []);
 
-  const { name, email, password, password2 } = formData;
+  const onChange = useCallback((e) => setFormData({ ...formData, [e.target.name]: e.target.value }), [formData]);
 
-  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const onSubmit = async (e) => {
+  const onSubmit = useCallback(async (e) => {
     e.preventDefault();
-    if (password !== password2) {
-      setAlert('Passwords do not match', 'error');
-    } else {
-      register({ name, email, password });
+    const { name, email, password, password2 } = formData;
+    if (password !== password2) setAlert('Passwords do not match', 'error');
+    try{
+      await register({ name, email, password });
+    } catch (err) {
+      setAlert(err.msg, 'error')
     }
-  };
+  }, [formData]);
 
-  if (isAuthenticated) {
-    return <Redirect to='/dashboard' />;
-  }
+  if (isAuthenticated) return <Redirect to='/dashboard'/>
 
   return (
     <Container component='main' maxWidth='xs' className={classes.container}>
@@ -59,55 +57,21 @@ const Register = () => {
         </Typography>
         <form className={classes.form} onSubmit={onSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                autoComplete='name'
-                name='name'
-                variant='outlined'
-                required
-                fullWidth
-                label='Your Name'
-                autoFocus
-                value={name}
-                onChange={onChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                label='Email Address'
-                name='email'
-                autoComplete='email'
-                value={email}
-                onChange={onChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                name='password'
-                label='Password'
-                type='password'
-                value={password}
-                onChange={onChange}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                name='password2'
-                label='Confirm Password'
-                type='password'
-                value={password2}
-                onChange={onChange}
-              />
-            </Grid>
+            {Object.keys(formData).map((key) => (
+              <Grid item xs={12} key={key}>
+                <TextField
+                  variant='outlined'
+                  autoCapitalize={key}
+                  required
+                  fullWidth
+                  label={key==='password2' ? 'Confirm Password' : key.charAt(0).toUpperCase() + key.slice(1)}
+                  name={key}
+                  autoFocus
+                  onChange={onChange}
+                  value={formData[key]}
+                />
+              </Grid>
+            ))}
           </Grid>
           <Button
             type='submit'
@@ -118,7 +82,7 @@ const Register = () => {
           >
             Sign Up
           </Button>
-          <Grid container justify='flex-end'>
+          <Grid container justifyContent='flex-end'>
             <Grid item>
               <Link href='/login' variant='body2'>
                 Already have an account? Sign in

@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState, useEffect, useContext } from 'react';
+import { Fragment, useRef, useState, useEffect, useContext, useCallback, useMemo, memo } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
 import PropTypes from 'prop-types';
@@ -27,7 +27,13 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
   const [archivedState, setArchived] = useState();
   const cardRef = useRef(null);
 
-  const card = cardObjects.find((object) => object._id === cardId)
+  const card = useMemo(()=> cardObjects.find((object) => object._id === cardId), [cardObjects, cardId]);
+  
+  const visualArchive = (state) => {
+    card.archived = state
+    setArchived(state)
+    update()
+  }
 
   useEffect(() => {
     getCard(cardId)
@@ -36,12 +42,6 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
   useEffect(() => {
     setArchived(!!card?.archived)
   }, [card?.archived, archived]);
-
-  const visualArchive = (state) => {
-    card.archived = state
-    setArchived(state)
-    update()
-  }
 
   useEffect(() => {
     if (card) {
@@ -60,19 +60,19 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
     setHeight(cardRef?.current?.clientHeight);
   }, [card, cardRef]);
 
-  const onSubmitEdit = async (e) => {
-    e.preventDefault();
-    setEditing(false);
-    setMouseOver(false);
-    update()
-    try{
-      await editCard(cardId, { title })
-      setAlert('Card\'s title edited successfully', 'success')
-    } catch(err){
-      setTitle(card.title)
-      setAlert('An error ocurred while editing the card\'s title', 'error')
-    }
-  };
+  const onSubmitEdit = useCallback(async (e) => {
+      e.preventDefault();
+      setEditing(false);
+      setMouseOver(false);
+      update()
+      try{
+        await editCard(cardId, { title })
+        setAlert('Card\'s title edited successfully', 'success')
+      } catch(err){
+        setTitle(card.title)
+        setAlert('An error ocurred while editing the card\'s title', 'error')
+      }
+    }, [cardId, title, update, card?.title])
 
   return !card || archivedState ? (
     ''
@@ -195,7 +195,7 @@ const Card = ({ list, setList, cardId, index, update, archived }) => {
       )}
     </Fragment>
   );
-};
+}
 
 Card.propTypes = {
   cardId: PropTypes.string.isRequired,

@@ -1,7 +1,6 @@
-import {useContext, useState} from 'react';
+import {useContext, useState, useCallback, useMemo, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import { AuthContext } from '../../contexts/AuthStore';
-
 
 import PropTypes from 'prop-types';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';
@@ -9,7 +8,7 @@ import useStyles from '../../utils/modalStyles';
 //import Alert from '../../components/other/Alert';
 
 
-const CardMembers = ({ card }) => {
+const CardMembers = memo(({ card }) => {
   const { board: {board: {members}}, addCardMember } = useContext(BoardContext);
   const { setAlert } = useContext(AuthContext);
 
@@ -17,7 +16,12 @@ const CardMembers = ({ card }) => {
 
   const classes = useStyles();
 
-  const addMember = async (e) => {
+  const visualMemberHandler = useCallback((member) => {
+    let foundMember = cardMembers.find((memberId) => memberId === member)
+    setMembers(foundMember ? cardMembers.filter((memberId) => memberId !== member) : cardMembers.concat(member))
+  }, [cardMembers])
+
+  const addMember = useCallback (async (e) => {
     e.persist()
     visualMemberHandler(e.target.name);
     try{
@@ -31,11 +35,7 @@ const CardMembers = ({ card }) => {
       setMembers(members)
       setAlert('An error ocurred while adding the user', 'error')
     }
-  }
-  const visualMemberHandler = (member) => {
-    let foundMember = cardMembers.find((memberId) => memberId === member)
-    setMembers(foundMember ? cardMembers.filter((memberId) => memberId !== member) : cardMembers.concat(member))
-  }
+  }, [members, card._id, visualMemberHandler])
 
   return (
     <div>
@@ -60,7 +60,7 @@ const CardMembers = ({ card }) => {
       </FormControl>
     </div>
   );
-};
+})
 
 CardMembers.propTypes = {
   card: PropTypes.object.isRequired,
