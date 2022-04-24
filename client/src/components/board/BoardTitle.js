@@ -1,34 +1,26 @@
-import { useState, useContext, memo, useCallback } from 'react';
+import { useState, useContext, memo } from 'react';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
 import { BoardContext } from '../../contexts/BoardStore';
-import { AuthContext } from '../../contexts/AuthStore';
 //import Alert from '../../components/other/Alert';
 
 const BoardTitle = memo(({ board }) => {
   const { renameBoard } = useContext(BoardContext);
-  const { setAlert } = useContext(AuthContext);
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(board.title);
 
   document.title = title + ' | TrelloClone';
 
-  const onSubmit = useCallback(async (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
     setEditing(false);
-    try{
-      await renameBoard(board._id, { title });
-      setAlert('Board renamed successfully', 'success');
-    } catch(err){
-      setTitle(board.title);
-      setAlert('An error ocurred while updating the board title', 'error');
-    }
-  }, [board, title]);
+    renameBoard(board, title);
+  }
 
   return !editing ? (
     <h2 className='board-title' onClick={() => setEditing(true)}>
-      {title}
+      {board.title}
     </h2>
     // <Alert />
   ) : (

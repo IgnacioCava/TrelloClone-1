@@ -8,18 +8,11 @@ import Card from '../card/Card';
 import CreateCardForm from './CreateCardForm';
 import Button from '@material-ui/core/Button';
 
-const List = ({ listId, index, archived, update }) => {
-  const { board: {board: {listObjects}}, getList } = useContext(BoardContext);
+const List = ({ listId, index }) => {
+  const { board: {board: {listObjects, cardObjects}}, getList } = useContext(BoardContext);
 
   const [addingCard, setAddingCard] = useState(false);
-  const [archivedState, setArchived] = useState();
   const [list, setList] = useState();
-
-  const visualArchive = (state) => {
-    list.archived = state
-    setArchived(state)
-    update()
-  }
 
   useEffect(() => {
     getList(listId)
@@ -27,18 +20,14 @@ const List = ({ listId, index, archived, update }) => {
 
   useEffect(() => {
     setList(listObjects.find((object) => object._id === listId))
-  }, [listObjects]);
-
-  useEffect(() => {
-    setArchived(!!list?.archived)
-  }, [list?.archived, archived]);
+  }, [listObjects, cardObjects]);
 
   const createCardFormRef = useRef(null);
   useEffect(() => {
     addingCard && createCardFormRef.current.scrollIntoView();
   }, [addingCard]);
 
-  return !list || archivedState ? (
+  return !list || list.archived ? (
     ''
   ) : (
     <Draggable draggableId={listId} index={index}>
@@ -51,7 +40,7 @@ const List = ({ listId, index, archived, update }) => {
         >
           <div className='list-top'>
             <ListTitle list={list} />
-            <ListMenu listId={listId} visualArchive={visualArchive}/>
+            <ListMenu list={list} />
           </div>
           <Droppable droppableId={listId} type='card'>
             {(provided) => (
@@ -61,9 +50,7 @@ const List = ({ listId, index, archived, update }) => {
                 ref={provided.innerRef}
               >
                 <div className='cards'>
-                  {list.cards.map((cardId, index, archived) => (
-                    <Card key={cardId} list={list} setList={setList} cardId={cardId} index={index} archived={archived} update={update}/>
-                  ))}
+                  {list.cards.map((cardId, index) => <Card key={cardId} list={list} cardId={cardId} index={index}/>)}
                 </div>
                 {provided.placeholder}
                 {addingCard && (

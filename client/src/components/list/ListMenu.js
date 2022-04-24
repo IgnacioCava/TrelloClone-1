@@ -1,29 +1,20 @@
-import { useState, useContext, useCallback, memo } from 'react';
+import { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Menu, MenuItem } from '@material-ui/core';
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import MoveList from './MoveList';
 import { BoardContext } from '../../contexts/BoardStore';
-import { AuthContext } from '../../contexts/AuthStore';
 
 
-const ListMenu = ({ listId, visualArchive }) => {
+const ListMenu = ({ list }) => {
   const { archiveList } = useContext(BoardContext);
-  const { setAlert } = useContext(AuthContext);
-  
+
   const [anchorEl, setAnchorEl] = useState(null);
 
   const archive = async () => {
-    visualArchive(true)
     setAnchorEl(null)
-    try{
-      await archiveList(listId, true)
-      setAlert('List archived successfully', 'success')
-    } catch(err){
-      visualArchive(false)
-      setAlert('An error ocurred while archiving the list', 'error')
-    }}
-
+    archiveList(list, true)
+  }
   return (
     <div>
       <Button onClick={e => setAnchorEl(e.currentTarget)}>
@@ -42,7 +33,7 @@ const ListMenu = ({ listId, visualArchive }) => {
           Archive This List
         </MenuItem>
         <MenuItem>
-          <MoveList listId={listId} closeMenu={() => setAnchorEl(null)} />
+          <MoveList listId={list._id} closeMenu={() => setAnchorEl(null)} />
         </MenuItem>
       </Menu>
     </div>

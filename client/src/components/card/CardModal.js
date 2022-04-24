@@ -13,36 +13,21 @@ import Checklist from '../checklist/Checklist';
 import useStyles from '../../utils/modalStyles';
 //import Alert from '../../components/other/Alert';
 
-const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, update, title, setTitle }) => {
+const CardModal = ({ cardId, open, setOpen, card, list, title, setTitle }) => {
   const { editCard, archiveCard } = useContext(BoardContext);
-  const { setAlert } = useContext(AuthContext);
 
   const classes = useStyles();
   const [description, setDescription] = useState(card.description);
 
-  const onTitleDescriptionSubmit = useCallback(async (e) => {
-      e.preventDefault();
-      try{
-        await editCard(cardId, {title, description});
-        setAlert('Card edited successfully', 'success')
-      } catch(err) {
-        setTitle(card.title);
-        setAlert('An error ocurred while editing the card', 'error');
-      }
-      update()
-    } , [cardId, title, description, editCard, setAlert, update, setTitle, card.title]);
+  const onTitleDescriptionSubmit = (e) => {
+    e.preventDefault();
+    editCard(card, { title, description });
+  };
 
-  const onArchiveCard = useCallback(async () => {
+  const onArchiveCard = () => {
+    archiveCard(card, true)
     setOpen(false);
-    visualArchive(true)
-    try{
-      await archiveCard(cardId, true)
-      setAlert('Card archived successfully', 'success')
-    } catch(err) {
-      visualArchive(false)
-      setAlert('An error ocurred while archiving the card', 'error');
-    }
-  } , [cardId, visualArchive])
+  }
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -97,12 +82,12 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, 
             <h3 className={classes.labelTitle}>Label</h3>
             <GithubPicker
               className={classes.colorPicker}
-              onChange={async (color) => editCard(cardId, { label: color.hex })}
+              onChange={(color) => editCard(card, { label: color.hex })}
             />
             <Button
               className={classes.noLabel}
               variant='outlined'
-              onClick={async () => editCard(cardId, { label: 'none' })}
+              onClick={() => editCard(card, { label: 'none' })}
             >
               No Label
             </Button>
@@ -110,7 +95,7 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, 
         </div>
         <Checklist card={card} />
         <div className={classes.modalSection}>
-          <MoveCard cardId={cardId} setOpen={setOpen} thisList={list} setList={setList} update={update}/>
+          <MoveCard cardId={cardId} setOpen={setOpen} thisList={list} />
           <div className={classes.modalBottomRight}>
             <Button
               variant='contained'
@@ -119,7 +104,7 @@ const CardModal = ({ cardId, open, setOpen, card, list, setList, visualArchive, 
             >
               Archive Card
             </Button>
-            <DeleteCard cardId={cardId} setOpen={setOpen} list={list} setList={setList}/>
+            <DeleteCard cardId={card._id} listId={list._id} setOpen={setOpen} />
           </div>
         </div>
       </div>

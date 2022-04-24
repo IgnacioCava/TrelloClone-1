@@ -7,64 +7,25 @@ import EditIcon from '@material-ui/icons/Edit';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-import { AuthContext } from '../../contexts/AuthStore';
 //import Alert from '../../components/other/Alert';
 
 
-const ChecklistItem = ({ item, card, updateList, list }) => {
+const ChecklistItem = ({ item, card }) => {
   const { completeChecklistItem, editChecklistItem, deleteChecklistItem } = useContext(BoardContext);
-  const { setAlert } = useContext(AuthContext);
 
   const classes = useStyles();
   const [text, setText] = useState(item.text);
   const [editing, setEditing] = useState(false);
-  const [checked, setChecked] = useState(item.complete);
 
-  const onEdit = useCallback(async (e) => {
+  const onEdit = (e) => {
     e.preventDefault();
     setEditing(false);
-    try{
-      await editChecklistItem(card._id, item._id, { text })
-      setAlert('Checklist item edited successfully', 'success')
-    } catch(err){
-      setAlert('An error ocurred while editing the checklist item', 'error')
-    }
-  }, [card._id, item._id, text])
+    editChecklistItem(card, item, { text })
+  }
 
-  const visualCheck = (e) => {
-    setChecked(!checked);
-  };
+  const onComplete = (e) => completeChecklistItem(card, item, e.target.checked)
 
-  const onComplete = useCallback(async (e) => {
-    visualCheck()
-    try{
-      await completeChecklistItem({
-        cardId: card._id,
-        complete: e.target.checked,
-        itemId: item._id,
-      })
-      setAlert('Checklist item completed successfully', 'success')
-    } catch(err){
-      visualCheck()
-      setAlert('An error ocurred while completing the checklist item', 'error')
-    }
-  }, [card._id, item._id, visualCheck])
-
-  const visualDelete = () => updateList(list.filter(e=>e._id!==item._id));
-  const undoDelete = (lastList) => updateList(lastList);
-
-  const onDelete = useCallback(async (e) => {
-    const prevList = {...list}
-    visualDelete()
-    try{
-      await deleteChecklistItem(card._id, item._id)
-      setAlert('Checklist item deleted successfully', 'success')
-    } catch(err){
-      undoDelete(prevList)
-      setAlert('An error ocurred while deleting the checklist item', 'error')
-    }
-    
-  }, [card._id, item._id, visualDelete, undoDelete])
+  const onDelete = () => deleteChecklistItem(card, item)
 
 
   return (
@@ -100,12 +61,12 @@ const ChecklistItem = ({ item, card, updateList, list }) => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={checked}
+                checked={item.complete}
                 onChange={onComplete}
                 name={item._id}
               />
             }
-            label={text}
+            label={item.text}
             className={classes.checklistFormLabel}
           />
           {/* <Alert/> */}

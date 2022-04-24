@@ -32,12 +32,14 @@ export const loadUser = () => async (dispatch) => {
 };
 
 // Register User
-export const register = ({ name, email, password }) => async (dispatch) => {
+export const register = ({ name, email, password, password2 }) => async (dispatch, setAlert) => {
   const config = {
     headers: {
       'Content-Type': 'application/json',
     },
   };
+
+  if(password !== password2) return setAlert('Passwords do not match', 'error');
 
   const body = JSON.stringify({ name, email, password });
 
@@ -52,13 +54,12 @@ export const register = ({ name, email, password }) => async (dispatch) => {
     dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors[0];
-    dispatch({type: REGISTER_FAIL});
-    throw errors
+    setAlert(errors.msg, 'error');
   }
 };
 
 // Login User
-export const login = (email, password) => async (dispatch) => {
+export const login = ({email, password}) => async (dispatch, setAlert) => {
   const config = {
     headers: {
       'Content-Type': 'application/json',
@@ -78,8 +79,7 @@ export const login = (email, password) => async (dispatch) => {
     dispatch(loadUser());
   } catch (err) {
     const errors = err.response.data.errors[0];
-    dispatch({type: LOGIN_FAIL});
-    throw errors;
+    setAlert(errors.msg, 'error')
   }
 };
 

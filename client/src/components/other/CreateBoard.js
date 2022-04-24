@@ -1,23 +1,23 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext, useMemo, memo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { BoardContext } from '../../contexts/BoardStore';
 import { Modal, TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
 
-const CreateBoard = ({ history }) => {
+const CreateBoard = memo(({ history }) => {
   const { addBoard } = useContext(BoardContext);
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState('');
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
     addBoard({ title }, history);
   };
 
-  const body = (
+  const body = useMemo(()=>(
     <div className={`${classes.paper} ${classes.createBoardModal}`}>
       <div className={classes.modalTop}>
         <h1>Create new board</h1>
@@ -41,7 +41,7 @@ const CreateBoard = ({ history }) => {
         </Button>
       </form>
     </div>
-  );
+  ), [title]);
 
   return (
     <div>
@@ -53,6 +53,6 @@ const CreateBoard = ({ history }) => {
       </Modal>
     </div>
   );
-};
+})
 
 export default withRouter(CreateBoard);

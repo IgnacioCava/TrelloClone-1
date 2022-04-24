@@ -1,6 +1,6 @@
 // https://github.com/mui-org/material-ui/tree/master/docs/src/pages/getting-started/templates/sign-up
 
-import React, { useState, useEffect, useContext, useCallback } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Redirect } from 'react-router-dom';
 import { AuthContext } from '../../contexts/AuthStore';
 import Button from '@material-ui/core/Button';
@@ -15,7 +15,7 @@ import Copyright from '../other/Copyright';
 import useStyles from '../../utils/formStyles';
 
 const Register = () => {
-  const { auth: {isAuthenticated}, setAlert, register } = useContext(AuthContext);
+  const { auth: {isAuthenticated}, register } = useContext(AuthContext);
 
   const classes = useStyles();
 
@@ -30,18 +30,12 @@ const Register = () => {
     document.title = 'TrelloClone | Sign Up';
   }, []);
 
-  const onChange = useCallback((e) => setFormData({ ...formData, [e.target.name]: e.target.value }), [formData]);
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
-  const onSubmit = useCallback(async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    const { name, email, password, password2 } = formData;
-    if (password !== password2) setAlert('Passwords do not match', 'error');
-    try{
-      await register({ name, email, password });
-    } catch (err) {
-      setAlert(err.msg, 'error')
-    }
-  }, [formData]);
+    register(formData);
+  }
 
   if (isAuthenticated) return <Redirect to='/dashboard'/>
 

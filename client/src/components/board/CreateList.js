@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useContext } from 'react';
+import { BoardContext } from '../../contexts/BoardStore';
 import { TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
-import { BoardContext } from '../../contexts/BoardStore';
 
 const CreateList = () => {
   const { addList } = useContext(BoardContext);
@@ -14,7 +14,7 @@ const CreateList = () => {
     formRef?.current?.scrollIntoView();
   }, [title]);
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
     addList({ title });
     setTitle('');

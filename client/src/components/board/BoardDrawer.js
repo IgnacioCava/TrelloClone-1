@@ -18,7 +18,7 @@ import ArchivedCards from './ArchivedCards';
 import useStyles from '../../utils/drawerStyles';
 import { BoardContext } from '../../contexts/BoardStore';
 
-const BoardDrawer = memo(({update}) => {
+const BoardDrawer = memo(() => {
   const { board: {board: {activity}} } = useContext(BoardContext);
 
   const classes = useStyles();
@@ -108,7 +108,7 @@ const BoardDrawer = memo(({update}) => {
               </Button>
             </div>
             <Divider />
-            <ArchivedLists update={update}/>
+            <ArchivedLists />
           </div>
         ) : (
           <div>
@@ -122,7 +122,7 @@ const BoardDrawer = memo(({update}) => {
               </Button>
             </div>
             <Divider />
-            <ArchivedCards update={update}/>
+            <ArchivedCards />
           </div>
         )}
         <Divider />
