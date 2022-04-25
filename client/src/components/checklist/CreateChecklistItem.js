@@ -1,29 +1,31 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
+//import Alert from '../../components/other/Alert';
 
 
-const CreateChecklistItem = ({ cardId }) => {
+const CreateChecklistItem = ({ card }) => {
   const { addChecklistItem } = useContext(BoardContext);
 
   const classes = useStyles();
   const [adding, setAdding] = useState(false);
   const [text, setText] = useState('');
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    addChecklistItem(cardId, { text })
     setText('');
-  };
+    addChecklistItem(card, { text })
+  }
 
   return !adding ? (
     <div className={classes.checklistBottom}>
       <Button variant='contained' onClick={() => setAdding(true)}>
         + Add an item
       </Button>
+      {/* <Alert/> */}
     </div>
   ) : (
     <div className={classes.checklistBottom}>
@@ -58,7 +60,7 @@ const CreateChecklistItem = ({ cardId }) => {
 };
 
 CreateChecklistItem.propTypes = {
-  cardId: PropTypes.string.isRequired,
+  card: PropTypes.object.isRequired,
 };
 
 export default CreateChecklistItem;

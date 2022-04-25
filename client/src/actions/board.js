@@ -24,7 +24,7 @@ import {
   ADD_CHECKLIST_ITEM,
   EDIT_CHECKLIST_ITEM,
   COMPLETE_CHECKLIST_ITEM,
-  DELETE_CHECKLIST_ITEM,
+  DELETE_CHECKLIST_ITEM
 } from './types';
 
 const config = {
@@ -99,21 +99,23 @@ export const addBoard = (formData, history) => async (dispatch) => {
 };
 
 // Rename board
-export const renameBoard = (boardId, formData) => async (dispatch) => {
+export const renameBoard = (board, title) => async (dispatch, setAlert) => {
+  const lastTitle = board.title;
+  dispatch({
+    type: RENAME_BOARD,
+    payload: {title},
+  })
+
   try {
-    const res = await axios.patch(`/api/boards/rename/${boardId}`, formData, config);
-
-    dispatch({
-      type: RENAME_BOARD,
-      payload: res.data,
-    });
-
-    dispatch(getActivity());
+    await axios.patch(`/api/boards/rename/${board._id}`, {title}, config);
+    setAlert('Board renamed successfully', 'success')
+    dispatch(getActivity())
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+      type: RENAME_BOARD,
+      payload: {title: lastTitle},
+    })
+    setAlert('An error ocurred while updating the board title', 'error')
   }
 };
 
@@ -156,38 +158,42 @@ export const addList = (formData) => async (dispatch) => {
 };
 
 // Rename list
-export const renameList = (listId, formData) => async (dispatch) => {
-  try {
-    const res = await axios.patch(`/api/lists/rename/${listId}`, formData, config);
+export const renameList = (list, title) => async (dispatch, setAlert) => {
+  const lastTitle = list.title;
+  dispatch({
+    type: RENAME_LIST,
+    payload: {...list, title},
+  });
 
-    dispatch({
-      type: RENAME_LIST,
-      payload: res.data,
-    });
+  try {
+    await axios.patch(`/api/lists/rename/${list._id}`, {title}, config);
+    setAlert('List renamed successfully', 'success')
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: RENAME_LIST,
+      payload: {...list, title: lastTitle},
     });
+    setAlert('An error ocurred while renaming the list', 'error')
   }
 };
 
 // Archive/Unarchive list
-export const archiveList = (listId, archive) => async (dispatch) => {
+export const archiveList = (list, archived) => async (dispatch, setAlert) => {
+  dispatch({
+    type: ARCHIVE_LIST,
+    payload: {...list, archived},
+  });
+
   try {
-    const res = await axios.patch(`/api/lists/archive/${archive}/${listId}`);
-
-    dispatch({
-      type: ARCHIVE_LIST,
-      payload: res.data,
-    });
-
+    await axios.patch(`/api/lists/archive/${archived}/${list._id}`);
+    setAlert(`List ${archived?'archived':'restored'} successfully`, 'success')
     dispatch(getActivity());
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: ARCHIVE_LIST,
+      payload: {...list, archived: !archived},
     });
+    setAlert(`An error ocurred while ${archived?'archiving':'restoring'} the list`, 'error')
   }
 };
 
@@ -230,78 +236,95 @@ export const addCard = (formData) => async (dispatch) => {
 };
 
 // Edit card
-export const editCard = (cardId, formData) => async (dispatch) => {
+export const editCard = (card, formData) => async (dispatch, setAlert) => {
+  const lastData = {...formData}
+  dispatch({
+    type: EDIT_CARD,
+    payload: {...card, ...formData},
+  });
   try {
-    const res = await axios.patch(`/api/cards/edit/${cardId}`, formData, config);
-
-    dispatch({
-      type: EDIT_CARD,
-      payload: res.data,
-    });
+    await axios.patch(`/api/cards/edit/${card._id}`, formData, config);
+    setAlert('Card edited successfully', 'success')
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: EDIT_CARD,
+      payload: {...card, ...lastData},
     });
+    setAlert('An error ocurred while editing the card', 'error');
   }
 };
 
 // Move card
-export const moveCard = (cardId, formData) => async (dispatch) => {
+export const moveCard = (lists, cardId, formData) => async (dispatch, setAlert) => {
+  const fromList = {...lists.find(e=>e._id===formData.fromId)};
+  const fromCards = [...fromList.cards]
+  const toList = {...lists.find(e=>e._id===formData.toId)}
+  const toCards = [...toList.cards]
+  const addedIndex = [...toCards]
+  addedIndex.splice(formData.toIndex, 0, cardId)
+
+  dispatch({
+    type: MOVE_CARD,
+    payload: {
+      cardId, 
+      from: {...fromList, cards: fromCards.filter(e=>e!==cardId)},
+      to: {...toList, cards: addedIndex},
+    },
+  });
+
   try {
     const body = JSON.stringify(formData);
-
-    const res = await axios.patch(`/api/cards/move/${cardId}`, body, config);
-
+    await axios.patch(`/api/cards/move/${cardId}`, body, config);
+    dispatch(getActivity());
+  } catch (err) {
     dispatch({
       type: MOVE_CARD,
-      payload: res.data,
+      payload: {
+        cardId, 
+        from: {...fromList, cards: fromCards },
+        to: {...toList, cards: toCards}
+      },
     });
-
-    dispatch(getActivity());
-  } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+    setAlert('An error ocurred while moving the card', 'error');
   }
 };
-
 // Archive/Unarchive card
-export const archiveCard = (cardId, archive) => async (dispatch) => {
+export const archiveCard = (card, archived) => async (dispatch, setAlert) => {
+  dispatch({
+    type: ARCHIVE_CARD,
+    payload: {...card, archived},
+  });
+  
   try {
-    const res = await axios.patch(`/api/cards/archive/${archive}/${cardId}`);
-
-    dispatch({
-      type: ARCHIVE_CARD,
-      payload: res.data,
-    });
-
+    await axios.patch(`/api/cards/archive/${archived}/${card._id}`);
+    setAlert(`Card ${archived?'archived':'restored'} successfully`, 'success')
     dispatch(getActivity());
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: ARCHIVE_CARD,
+      payload: {...card, archived: !archived},
     });
+    setAlert(`An error ocurred while ${archived?'archiving':'restoring'} the card`, 'error')
   }
 };
 
 // Delete card
-export const deleteCard = (listId, cardId) => async (dispatch) => {
+export const deleteCard = (listId, cardId) => async (dispatch, setAlert) => {
+  dispatch({
+    type: DELETE_CARD,
+    payload: cardId,
+  });
+
   try {
-    const res = await axios.delete(`/api/cards/${listId}/${cardId}`);
-
-    dispatch({
-      type: DELETE_CARD,
-      payload: res.data,
-    });
-
+    await axios.delete(`/api/cards/${listId}/${cardId}`);
+    setAlert('Card deleted successfully', 'success')
     dispatch(getActivity());
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: ADD_CARD,
+      payload: {cardId, listId},
     });
+    setAlert('An error ocurred while deleting the card', 'error')
   }
 };
 
@@ -325,7 +348,7 @@ export const getActivity = () => async (dispatch) => {
 };
 
 // Add member
-export const addMember = (userId) => async (dispatch) => {
+export const addMember = (userId) => async (dispatch, setAlert) => {
   try {
     const res = await axios.put(`/api/boards/addMember/${userId}`);
 
@@ -333,126 +356,131 @@ export const addMember = (userId) => async (dispatch) => {
       type: ADD_MEMBER,
       payload: res.data,
     });
-
+    setAlert('Member added successfully', 'success');
     dispatch(getActivity());
   } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+    setAlert(err.response.data, 'error')
   }
 };
 
 // Move list
-export const moveList = (listId, formData) => async (dispatch) => {
-  try {
-    const body = JSON.stringify(formData);
-
-    const res = await axios.patch(`/api/lists/move/${listId}`, body, config);
-
-    dispatch({
+export const moveList = (lists, listId, {toIndex}) => async (dispatch, setAlert) => {
+  const allLists = [...lists];
+  let indexedLists = allLists.map(e=>e._id).filter(e=>e !== listId)
+  indexedLists.splice(toIndex, 0, listId)
+  dispatch({
       type: MOVE_LIST,
-      payload: res.data,
-    });
+    payload: indexedLists,
+  });
+  try {
+    const body = JSON.stringify({toIndex});
+    await axios.patch(`/api/lists/move/${listId}`, body, config);
   } catch (err) {
     dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
+      type: MOVE_LIST,
+      payload: allLists,
     });
+    setAlert('An error ocurred while moving the list', 'error')
+
   }
 };
 
+// Get users by query
+export const getUsers = async (query) => {
+    return (await axios.get(`/api/users/${query}`)).data.slice(0, 5)
+};
+
 // Add card member
-export const addCardMember = (formData) => async (dispatch) => {
-  try {
-    const { add, cardId, userId } = formData;
-
-    const res = await axios.put(`/api/cards/addMember/${add}/${cardId}/${userId}`);
-
+export const addCardMember = (action, card, {user, name}) => async (dispatch, setAlert) => {
+  const add = (add) => {  
     dispatch({
       type: ADD_CARD_MEMBER,
-      payload: res.data,
+      payload: {...card, members: add?[...card.members, {user, name}]:card.members.filter(member => member.user !== user)},
     });
+  }
+  add(action)
 
+  try {
+    await axios.put(`/api/cards/addMember/${action}/${card._id}/${user}`);
     dispatch(getActivity());
   } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+    add(!action)
+    setAlert('An error ocurred while adding the user', 'error')
   }
 };
 
 // Add checklist item
-export const addChecklistItem = (cardId, formData) => async (dispatch) => {
+export const addChecklistItem = (card, formData) => async (dispatch, setAlert) => {
+  dispatch ({
+    type: ADD_CHECKLIST_ITEM,
+    payload: {...card, checklist: [...card.checklist, formData]},
+  });
+  
   try {
     const body = JSON.stringify(formData);
-
-    const res = await axios.post(`/api/checklists/${cardId}`, body, config);
-
+    const res = await axios.post(`/api/checklists/${card._id}`, body, config);
     dispatch({
       type: ADD_CHECKLIST_ITEM,
       payload: res.data,
     });
   } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+    dispatch ({
+      type: DELETE_CHECKLIST_ITEM,
+      payload: card,
+    })
+    setAlert('An error ocurred while adding the checklist item', 'error')
   }
 };
 
 // Edit checklist item
-export const editChecklistItem = (cardId, itemId, formData) => async (dispatch) => {
-  try {
-    const body = JSON.stringify(formData);
-
-    const res = await axios.patch(`/api/checklists/${cardId}/${itemId}`, body, config);
-
+export const editChecklistItem = (card, item, formData) => async (dispatch, setAlert) => {
+  const edit = (action) => {
     dispatch({
       type: EDIT_CHECKLIST_ITEM,
-      payload: res.data,
+      payload: {...card, checklist: card.checklist.map(thisItem => thisItem._id === item._id ? (action? {...item, ...formData} : {...item}) : item)},
     });
+  }
+  edit(true)
+
+  try {
+    const body = JSON.stringify(formData);
+    await axios.patch(`/api/checklists/${card._id}/${item._id}`, body, config);
   } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+    edit(false)
+    setAlert('An error ocurred while editing the checklist item', 'error')
   }
 };
 
 // Complete/Uncomplete checklist item
-export const completeChecklistItem = (formData) => async (dispatch) => {
-  try {
-    const { cardId, complete, itemId } = formData;
-
-    const res = await axios.patch(`/api/checklists/${cardId}/${complete}/${itemId}`);
-
+export const completeChecklistItem = (card, item, complete) => async (dispatch, setAlert) => {
+  const completeItem = (action) => {
     dispatch({
       type: COMPLETE_CHECKLIST_ITEM,
-      payload: res.data,
+      payload: {...card, checklist: card.checklist.map(thisItem => thisItem._id === item._id ? (action? {...item, complete} : {...item, complete:!complete}) : item)},
     });
-  } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+  }
+  completeItem(true)
+
+  try { await axios.patch(`/api/checklists/${card._id}/${complete}/${item._id}`) } 
+  catch (err) {
+    completeItem(false)
+    setAlert('An error ocurred while completing the checklist item', 'error')
   }
 };
 
 // Delete checklist item
-export const deleteChecklistItem = (cardId, itemId) => async (dispatch) => {
-  try {
-    const res = await axios.delete(`/api/checklists/${cardId}/${itemId}`);
+export const deleteChecklistItem = (card, item) => async (dispatch, setAlert) => {
+  dispatch({
+    type: DELETE_CHECKLIST_ITEM,
+    payload: {...card, checklist: card.checklist.filter(thisItem => thisItem._id !== item._id)},
+  });
 
+  try { await axios.delete(`/api/checklists/${card._id}/${item._id}`) } 
+  catch (err) {
     dispatch({
-      type: DELETE_CHECKLIST_ITEM,
-      payload: res.data,
-    });
-  } catch (err) {
-    dispatch({
-      type: BOARD_ERROR,
-      payload: { msg: err.response.statusText, status: err.response.status },
-    });
+      type: ADD_CHECKLIST_ITEM,
+      payload: {...card, checklist: [...card.checklist]},
+    })
+    setAlert('An error ocurred while deleting the checklist item', 'error')
   }
 };

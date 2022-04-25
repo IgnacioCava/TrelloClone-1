@@ -1,37 +1,42 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import axios from 'axios';
 import getInitials from '../../utils/getInitials';
+import { BoardContext } from '../../contexts/BoardStore';
+
 import { TextField, Button } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CloseIcon from '@material-ui/icons/Close';
-import { BoardContext } from '../../contexts/BoardStore';
+//import Alert from '../../components/other/Alert';
+
 
 const Members = () => {
-  const { board: {board: {members}}, addMember } = useContext(BoardContext);
+  const { board: {board: {members}}, addMember, getUsers } = useContext(BoardContext);
 
   const [inviting, setInviting] = useState(false);
   const [user, setUser] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [users, setUsers] = useState([]);
 
-  const searchOptions = users.filter((user) => members.find((boardMember) => boardMember.user === user._id) ? false : true)
+  const searchOptions = useMemo(() => {
+    return users.filter((user) => !members.find((boardMember) => boardMember.user === user._id))
+  }, [users, members]);
 
   const handleInputValue = async (newInputValue) => {
     setInputValue(newInputValue);
     if (newInputValue && newInputValue !== '') {
-      const search = (await axios.get(`/api/users/${newInputValue}`)).data.slice(0, 5);
-      setUsers(search && search.length > 0 ? search : []);
-    }
+      const search = await getUsers(newInputValue);
+      setUsers(search.length ? search : []);
+    } else setUsers([]);
   };
 
   const onSubmit = async () => {
-    addMember(user._id);
-    setUser(null);
-    setInputValue('');
     setInviting(false);
-  };
+    setInputValue('');
+    setUsers([]);
+    await addMember(user._id);
+  }
 
   return (
     <div className='board-members-wrapper'>
@@ -48,6 +53,7 @@ const Members = () => {
         <Button className='invite' variant='contained' onClick={() => setInviting(true)}>
           Invite
         </Button>
+        // <Alert/>
       ) : (
         <div className='invite'>
           <Autocomplete

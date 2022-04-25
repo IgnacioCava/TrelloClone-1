@@ -7,37 +7,30 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CloseIcon from '@material-ui/icons/Close';
 import { BoardContext } from '../../contexts/BoardStore';
 
-const DeleteCard = ({ cardId, setOpen, list }) => {
+
+const DeleteCard = ({ cardId, listId, setOpen }) => {
   const { deleteCard } = useContext(BoardContext);
 
   const [openDialog, setOpenDialog] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
-
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
-
-  const onDeleteCard = async () => {
-    deleteCard(list._id, cardId);
-    setOpenDialog(false);
-    setOpen(false);
-  };
+  const onDeleteCard = () => {
+    deleteCard(listId, cardId);
+    setOpenDialog(false)
+    setOpen(false)
+  }
 
   return (
     <div>
-      <Button variant='contained' color='secondary' onClick={handleClickOpen}>
+      <Button variant='contained' color='secondary' onClick={()=>setOpenDialog(true)}>
         Delete Card
       </Button>
-      <Dialog open={openDialog} onClose={handleClose}>
+      <Dialog open={openDialog} onClose={()=>setOpenDialog(false)}>
         <DialogTitle>{'Delete card?'}</DialogTitle>
         <DialogActions>
           <Button onClick={onDeleteCard} variant='contained' color='secondary' autoFocus>
             Delete
           </Button>
-          <Button onClick={handleClose}>
+          <Button onClick={()=>setOpenDialog(false)}>
             <CloseIcon />
           </Button>
         </DialogActions>
@@ -49,7 +42,7 @@ const DeleteCard = ({ cardId, setOpen, list }) => {
 DeleteCard.propTypes = {
   cardId: PropTypes.string.isRequired,
   setOpen: PropTypes.func.isRequired,
-  list: PropTypes.object.isRequired,
+  listId: PropTypes.string.isRequired,
 };
 
 export default DeleteCard;

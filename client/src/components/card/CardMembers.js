@@ -1,35 +1,32 @@
-import React, {useContext} from 'react';
+import {useContext, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 
 import PropTypes from 'prop-types';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';
 import useStyles from '../../utils/modalStyles';
+//import Alert from '../../components/other/Alert';
 
-const CardMembers = ({ card }) => {
+
+const CardMembers = memo(({ card }) => {
   const { board: {board: {members}}, addCardMember } = useContext(BoardContext);
 
-  const cardMembers = card.members.map((member) => member.user)
-
   const classes = useStyles();
+
+  const addMember = (action, member) => addCardMember(action, card, member)
 
   return (
     <div>
       <h3 className={classes.membersTitle}>Members</h3>
       <FormControl component='fieldset'>
+        {/* <Alert/> */}
         <FormGroup>
           {members.map((member) => (
             <FormControlLabel
               key={member.user}
               control={
                 <Checkbox
-                  checked={cardMembers.indexOf(member.user) !== -1}
-                  onChange={async (e) =>
-                      addCardMember({
-                        add: e.target.checked,
-                        cardId: card._id,
-                        userId: e.target.name,
-                      })
-                  }
+                  checked={card.members.map(e=>e.user).indexOf(member.user) !== -1}
+                  onChange={(e)=>addMember(e.target.checked, member)}
                   name={member.user}
                 />
               }
@@ -40,7 +37,7 @@ const CardMembers = ({ card }) => {
       </FormControl>
     </div>
   );
-};
+})
 
 CardMembers.propTypes = {
   card: PropTypes.object.isRequired,

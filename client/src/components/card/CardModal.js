@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
 
@@ -10,28 +10,23 @@ import DeleteCard from './DeleteCard';
 import CardMembers from './CardMembers';
 import Checklist from '../checklist/Checklist';
 import useStyles from '../../utils/modalStyles';
+//import Alert from '../../components/other/Alert';
 
-const CardModal = ({ cardId, open, setOpen, card, list }) => {
+const CardModal = ({ cardId, open, setOpen, card, list, title, setTitle }) => {
   const { editCard, archiveCard } = useContext(BoardContext);
 
   const classes = useStyles();
-  const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description);
 
-  useEffect(() => {
-    setTitle(card.title);
-    setDescription(card.description);
-  }, [card]);
-
-  const onTitleDescriptionSubmit = async (e) => {
+  const onTitleDescriptionSubmit = (e) => {
     e.preventDefault();
-    editCard(cardId, { title, description })
+    editCard(card, { title, description });
   };
 
-  const onArchiveCard = async () => {
-    archiveCard(cardId, true)
+  const onArchiveCard = () => {
+    archiveCard(card, true)
     setOpen(false);
-  };
+  }
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -63,19 +58,22 @@ const CardModal = ({ cardId, open, setOpen, card, list }) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
-          <Button
-            type='submit'
-            variant='contained'
-            color='primary'
-            disabled={
-              title === card.title &&
-              (description === card.description ||
-                (description === '' && !card.description))
-            }
-            className={classes.button}
-          >
-            Save All Changes
-          </Button>
+          <>
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              disabled={
+                title === card.title &&
+                (description === card.description ||
+                  (description === '' && !card.description))
+              }
+              className={classes.button}
+            >
+              Save All Changes
+            </Button>
+            {/* <Alert/> */}
+          </>
         </form>
         <div className={classes.modalSection}>
           <CardMembers card={card} />
@@ -83,12 +81,12 @@ const CardModal = ({ cardId, open, setOpen, card, list }) => {
             <h3 className={classes.labelTitle}>Label</h3>
             <GithubPicker
               className={classes.colorPicker}
-              onChange={async (color) => editCard(cardId, { label: color.hex })}
+              onChange={(color) => editCard(card, { label: color.hex })}
             />
             <Button
               className={classes.noLabel}
               variant='outlined'
-              onClick={async () => editCard(cardId, { label: 'none' })}
+              onClick={() => editCard(card, { label: 'none' })}
             >
               No Label
             </Button>
@@ -105,7 +103,7 @@ const CardModal = ({ cardId, open, setOpen, card, list }) => {
             >
               Archive Card
             </Button>
-            <DeleteCard cardId={cardId} setOpen={setOpen} list={list} />
+            <DeleteCard cardId={card._id} listId={list._id} setOpen={setOpen} />
           </div>
         </div>
       </div>

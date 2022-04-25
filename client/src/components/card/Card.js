@@ -1,8 +1,9 @@
-import React, { Fragment, useRef, useState, useEffect, useContext } from 'react';
+import { Fragment, useRef, useState, useEffect, useContext, useMemo } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
 import getInitials from '../../utils/getInitials';
+
 import CardMUI from '@material-ui/core/Card';
 import EditIcon from '@material-ui/icons/Edit';
 import CloseIcon from '@material-ui/icons/Close';
@@ -10,9 +11,10 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import { TextField, CardContent, Button, Avatar, Tooltip } from '@material-ui/core';
 import CardModal from './CardModal';
+//import Alert from '../../components/other/Alert';
 
-const Card = ({ cardId, list, index }) => {
-  const { board: {board: {cardObjects}}, getCard, editCard } = useContext(BoardContext);
+const Card = ({ list, cardId, index }) => {
+  const { board: {board: {cardObjects}}, getCard, editCard } = useContext(BoardContext)
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -22,11 +24,11 @@ const Card = ({ cardId, list, index }) => {
   const [completeItems, setCompleteItems] = useState(0);
   const cardRef = useRef(null);
 
-  const card = cardObjects.find((object) => object._id === cardId)
+  const card = useMemo(()=> cardObjects.find((object) => object._id === cardId), [cardObjects, cardId]);
 
   useEffect(() => {
     getCard(cardId)
-  }, [cardId, getCard]);
+  }, [cardId]);
 
   useEffect(() => {
     if (card) {
@@ -43,18 +45,16 @@ const Card = ({ cardId, list, index }) => {
 
   useEffect(() => {
     setHeight(cardRef?.current?.clientHeight);
-  }, [list, card, cardRef]);
+  }, [card, cardRef]);
 
   const onSubmitEdit = async (e) => {
     e.preventDefault();
-    editCard(cardId, { title })
     setEditing(false);
     setMouseOver(false);
-  };
+    editCard(card, { title })
+  }
 
-  return !card || (card && card.archived) ? (
-    ''
-  ) : (
+  return !card || card.archived ? null :
     <Fragment>
       <CardModal
         cardId={cardId}
@@ -62,6 +62,8 @@ const Card = ({ cardId, list, index }) => {
         setOpen={setOpenModal}
         card={card}
         list={list}
+        title = {title}
+        setTitle= {setTitle}
       />
       {!editing ? (
         <Draggable draggableId={cardId} index={index}>
@@ -97,7 +99,7 @@ const Card = ({ cardId, list, index }) => {
                 {card.label && card.label !== 'none' && (
                   <div className='card-label' style={{ backgroundColor: card.label }} />
                 )}
-                <p>{card.title}</p>
+                <p>{title}</p>
                 <div className='card-bottom'>
                   <div className='card-bottom-left'>
                     {card.description && (
@@ -132,6 +134,7 @@ const Card = ({ cardId, list, index }) => {
               </CardContent>
             </CardMUI>
           )}
+          {/* <Alert/> */}
         </Draggable>
       ) : (
         <form className='create-card-form' onSubmit={onSubmitEdit}>
@@ -158,7 +161,6 @@ const Card = ({ cardId, list, index }) => {
               onClick={() => {
                 setEditing(false);
                 setMouseOver(false);
-                setTitle(card.title);
               }}
             >
               <CloseIcon />
@@ -167,8 +169,8 @@ const Card = ({ cardId, list, index }) => {
         </form>
       )}
     </Fragment>
-  );
-};
+
+}
 
 Card.propTypes = {
   cardId: PropTypes.string.isRequired,

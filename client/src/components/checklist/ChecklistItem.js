@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, useContext } from 'react';
+import React, { Fragment, useState, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
@@ -7,6 +7,8 @@ import EditIcon from '@material-ui/icons/Edit';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
+//import Alert from '../../components/other/Alert';
+
 
 const ChecklistItem = ({ item, card }) => {
   const { completeChecklistItem, editChecklistItem, deleteChecklistItem } = useContext(BoardContext);
@@ -15,27 +17,14 @@ const ChecklistItem = ({ item, card }) => {
   const [text, setText] = useState(item.text);
   const [editing, setEditing] = useState(false);
 
-  useEffect(() => {
-    setText(item.text);
-  }, [item.text]);
-
-  const onEdit = async (e) => {
+  const onEdit = (e) => {
     e.preventDefault();
-    editChecklistItem(card._id, item._id, { text })
     setEditing(false);
-  };
+    editChecklistItem(card, item, { text })
+  }
 
-  const onComplete = async (e) => {
-      completeChecklistItem({
-        cardId: card._id,
-        complete: e.target.checked,
-        itemId: item._id,
-      })
-  };
-
-  const onDelete = async (e) => {
-    deleteChecklistItem(card._id, item._id)
-  };
+  const onComplete = (e) => completeChecklistItem(card, item, e.target.checked)
+  const onDelete = () => deleteChecklistItem(card, item)
 
   return (
     <div className={classes.checklistItem}>
@@ -70,9 +59,7 @@ const ChecklistItem = ({ item, card }) => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={
-                  card.checklist.find((cardItem) => cardItem._id === item._id).complete
-                }
+                checked={item.complete}
                 onChange={onComplete}
                 name={item._id}
               />
@@ -80,6 +67,7 @@ const ChecklistItem = ({ item, card }) => {
             label={item.text}
             className={classes.checklistFormLabel}
           />
+          {/* <Alert/> */}
           <div className={classes.itemButtons}>
             <Button className={classes.itemButton} onClick={() => setEditing(true)}>
               <EditIcon />

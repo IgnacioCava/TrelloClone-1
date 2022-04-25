@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
-
+//import Alert from '../../components/other/Alert';
 
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -51,7 +51,7 @@ const MoveCard = ({ cardId, setOpen, thisList }) => {
   }, [thisList, cardId, listObject, cardObjects]);
 
   const onSubmit = async () => {
-    moveCard(cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position })
+    moveCard(listObjects, cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position })
     setOpen(false);
   };
 

@@ -1,17 +1,19 @@
-import React, {useContext} from 'react';
+import { useContext, memo } from 'react';
+import { BoardContext } from '../../contexts/BoardStore';
 
 import List from '@material-ui/core/List';
 import Button from '@material-ui/core/Button';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import { BoardContext } from '../../contexts/BoardStore';
+//import Alert from '../../components/other/Alert';
 
 
-const ArchivedLists = () => {
+const ArchivedLists = memo(() => {
   const { board: {board: {listObjects}}, archiveList } = useContext(BoardContext);
 
-  const onSubmit = async (listId) => archiveList(listId, false)
-
+  const unarchive = (list) => archiveList(list, false)
+  //Restoring lists on quick succession essentially forces an error from the server. I'll fix this on the backend branch
+  
   return (
     <div>
       <List>
@@ -20,12 +22,14 @@ const ArchivedLists = () => {
           .map((list, index) => (
             <ListItem key={index}>
               <ListItemText primary={list.title} />
-              <Button onClick={() => onSubmit(list._id)}>Send to Board</Button>
+              <Button onClick={() => unarchive(list)}>
+                Send to Board
+              </Button>
             </ListItem>
           ))}
       </List>
     </div>
   );
-};
+})
 
 export default ArchivedLists;

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
@@ -9,22 +9,25 @@ import CreateCardForm from './CreateCardForm';
 import Button from '@material-ui/core/Button';
 
 const List = ({ listId, index }) => {
-  const { board: {board: {listObjects}}, getList } = useContext(BoardContext);
+  const { board: {board: {listObjects, cardObjects}}, getList } = useContext(BoardContext);
 
   const [addingCard, setAddingCard] = useState(false);
-
-  const list = listObjects.find((object) => object._id === listId)
+  const [list, setList] = useState();
 
   useEffect(() => {
     getList(listId)
-  }, [getList, listId]);
+  }, [listId]);
+
+  useEffect(() => {
+    setList(listObjects.find((object) => object._id === listId))
+  }, [listObjects, cardObjects]);
 
   const createCardFormRef = useRef(null);
   useEffect(() => {
     addingCard && createCardFormRef.current.scrollIntoView();
   }, [addingCard]);
 
-  return !list || list?.archived ? (
+  return !list || list.archived ? (
     ''
   ) : (
     <Draggable draggableId={listId} index={index}>
@@ -37,7 +40,7 @@ const List = ({ listId, index }) => {
         >
           <div className='list-top'>
             <ListTitle list={list} />
-            <ListMenu listId={listId} />
+            <ListMenu list={list} />
           </div>
           <Droppable droppableId={listId} type='card'>
             {(provided) => (
@@ -47,14 +50,12 @@ const List = ({ listId, index }) => {
                 ref={provided.innerRef}
               >
                 <div className='cards'>
-                  {list.cards.map((cardId, index) => (
-                    <Card key={cardId} cardId={cardId} list={list} index={index} />
-                  ))}
+                  {list.cards.map((cardId, index) => <Card key={cardId} list={list} cardId={cardId} index={index}/>)}
                 </div>
                 {provided.placeholder}
                 {addingCard && (
                   <div ref={createCardFormRef}>
-                    <CreateCardForm listId={listId} setAdding={setAddingCard} />
+                    <CreateCardForm listId={listId} setAdding={setAddingCard}/>
                   </div>
                 )}
               </div>
@@ -71,7 +72,7 @@ const List = ({ listId, index }) => {
       )}
     </Draggable>
   );
-};
+}
 
 List.propTypes = {
   listId: PropTypes.string.isRequired,

@@ -8,17 +8,15 @@ import Login from './components/pages/Login';
 import Dashboard from './components/pages/Dashboard';
 import Board from './components/pages/Board';
 import Alert from './components/other/Alert';
-
 import './App.css';
-
-
 
 export default function App() {
 
   const {loadUser} = useContext(AuthContext)
-    useEffect(() => {
-        loadUser();
-    }, [loadUser]);
+  useEffect(() => {
+    if(localStorage.token) loadUser();
+  }, []);
+
   return (
       <Router>
         <Fragment>
@@ -28,6 +26,7 @@ export default function App() {
             <Route exact path='/register' component={Register} />
             <Route exact path='/login' component={Login} />
               <BoardStore>
+                <Alert />
                 <Route exact path='/dashboard' component={Dashboard} />
                 <Route exact path='/board/:id' component={Board} />
               </BoardStore>

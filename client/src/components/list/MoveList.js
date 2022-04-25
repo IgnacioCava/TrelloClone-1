@@ -29,7 +29,7 @@ const MoveList = ({ listId, closeMenu }) => {
   }, [listId, listObjects, lists]);
 
   const onSubmit = async () => {
-    moveList(listId, { toIndex: position })
+    moveList(listObjects, listId, { toIndex: position })
     setOpenDialog(false);
     closeMenu();
   };

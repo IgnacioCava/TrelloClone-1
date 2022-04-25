@@ -1,22 +1,19 @@
-import React, {useContext} from 'react';
+import {useContext, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
-
+//import Alert from '../../components/other/Alert';
 
 import { Card, List, ListItem, CardContent, Button } from '@material-ui/core';
 
-const ArchivedCards = () => {
+const ArchivedCards = memo (() => {
   const { board: {board: {listObjects, cardObjects}}, archiveCard, deleteCard } = useContext(BoardContext);
 
-  const onDelete = async (listId, cardId) => {
-    deleteCard(listId, cardId)
-  };
-
-  const onSendBack = async (cardId) => {
-    archiveCard(cardId, false)
-  };
+  const onSendBack = (card) => archiveCard(card, false)
+  const onDelete = (listId, cardId) => deleteCard(listId, cardId)
+  //Deleting cards on quick succession essentially forces an error from the server. I'll fix this on the backend branch
 
   return (
     <div>
+      {/* <Alert/> */}
       <List>
         {cardObjects
           .filter((card) => card.archived)
@@ -28,22 +25,18 @@ const ArchivedCards = () => {
               <div>
                 <Button
                   color='secondary'
-                  onClick={() =>
-                    onDelete(
-                      listObjects.find((list) => list.cards.includes(card._id))._id,
-                      card._id
-                    )
-                  }
-                >
+                  onClick={() => onDelete(listObjects.find((list) => list.cards.includes(card._id))._id, card._id)}>
                   Delete Card
                 </Button>
-                <Button onClick={() => onSendBack(card._id)}>Send to List</Button>
+                <Button onClick={() => onSendBack(card)}>
+                  Send to List
+                </Button>
               </div>
             </ListItem>
           ))}
       </List>
     </div>
   );
-};
+})
 
 export default ArchivedCards;

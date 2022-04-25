@@ -24,18 +24,16 @@ const Login = () => {
     password: '',
   });
 
-  const { email, password } = formData;
-
   useEffect(() => {
     document.title = 'TrelloClone | Sign In';
   }, []);
 
-  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    login(email, password);
-  };
+    login(formData);
+  }
 
   if (isAuthenticated) return <Redirect to='/dashboard' />
 
@@ -59,7 +57,7 @@ const Login = () => {
             name='email'
             autoComplete='email'
             autoFocus
-            value={email}
+            value={formData.email}
             onChange={onChange}
           />
           <TextField
@@ -71,7 +69,7 @@ const Login = () => {
             label='Password'
             type='password'
             autoComplete='current-password'
-            value={password}
+            value={formData.password}
             onChange={onChange}
           />
           <Button
@@ -83,7 +81,7 @@ const Login = () => {
           >
             Sign In
           </Button>
-          <Grid container justify='flex-end'>
+          <Grid container justifyContent='flex-end'>
             <Grid item>
               <Link href='/register' variant='body2'>
                 Don't have an account? Sign Up
