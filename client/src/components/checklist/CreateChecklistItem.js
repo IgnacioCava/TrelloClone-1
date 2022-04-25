@@ -60,7 +60,7 @@ const CreateChecklistItem = ({ card }) => {
 };
 
 CreateChecklistItem.propTypes = {
-  cardId: PropTypes.string.isRequired,
+  card: PropTypes.object.isRequired,
 };
 
 export default CreateChecklistItem;

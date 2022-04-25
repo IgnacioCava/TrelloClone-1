@@ -41,7 +41,7 @@ const ListMenu = ({ list }) => {
 }
 
 ListMenu.propTypes = {
-  listId: PropTypes.string.isRequired,
+  list: PropTypes.object.isRequired,
 };
 
 export default ListMenu;

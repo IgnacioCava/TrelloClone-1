@@ -1,7 +1,6 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
-import { AuthContext } from '../../contexts/AuthStore';
 
 import { GithubPicker } from 'react-color';
 import { Modal, TextField, Button } from '@material-ui/core';

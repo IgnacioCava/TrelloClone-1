@@ -1,6 +1,5 @@
-import {useContext, useState, useEffect, useCallback, memo} from 'react';
+import {useContext, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
-import { AuthContext } from '../../contexts/AuthStore';
 //import Alert from '../../components/other/Alert';
 
 import { Card, List, ListItem, CardContent, Button } from '@material-ui/core';

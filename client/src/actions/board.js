@@ -385,6 +385,11 @@ export const moveList = (lists, listId, {toIndex}) => async (dispatch, setAlert)
   }
 };
 
+// Get users by query
+export const getUsers = async (query) => {
+    return (await axios.get(`/api/users/${query}`)).data.slice(0, 5)
+};
+
 // Add card member
 export const addCardMember = (action, card, {user, name}) => async (dispatch, setAlert) => {
   const add = (add) => {  

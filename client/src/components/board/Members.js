@@ -12,7 +12,7 @@ import CloseIcon from '@material-ui/icons/Close';
 
 
 const Members = () => {
-  const { board: {board: {members}}, addMember } = useContext(BoardContext);
+  const { board: {board: {members}}, addMember, getUsers } = useContext(BoardContext);
 
   const [inviting, setInviting] = useState(false);
   const [user, setUser] = useState(null);
@@ -26,7 +26,7 @@ const Members = () => {
   const handleInputValue = async (newInputValue) => {
     setInputValue(newInputValue);
     if (newInputValue && newInputValue !== '') {
-      const search = (await axios.get(`/api/users/${newInputValue}`)).data.slice(0, 5);
+      const search = await getUsers(newInputValue);
       setUsers(search.length ? search : []);
     } else setUsers([]);
   };

@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useContext, useCallback } from 'react';
+import React, { Fragment, useState, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
@@ -24,9 +24,7 @@ const ChecklistItem = ({ item, card }) => {
   }
 
   const onComplete = (e) => completeChecklistItem(card, item, e.target.checked)
-
   const onDelete = () => deleteChecklistItem(card, item)
-
 
   return (
     <div className={classes.checklistItem}>

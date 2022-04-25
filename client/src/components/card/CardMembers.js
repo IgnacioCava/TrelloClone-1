@@ -1,6 +1,5 @@
 import {useContext, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
-import { AuthContext } from '../../contexts/AuthStore';
 
 import PropTypes from 'prop-types';
 import { Checkbox, FormGroup, FormControlLabel, FormControl } from '@material-ui/core';

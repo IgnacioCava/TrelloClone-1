@@ -42,7 +42,7 @@ const DeleteCard = ({ cardId, listId, setOpen }) => {
 DeleteCard.propTypes = {
   cardId: PropTypes.string.isRequired,
   setOpen: PropTypes.func.isRequired,
-  list: PropTypes.object.isRequired,
+  listId: PropTypes.string.isRequired,
 };
 
 export default DeleteCard;

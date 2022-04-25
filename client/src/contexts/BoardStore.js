@@ -30,6 +30,7 @@ export default function BoardStore(props) {
         getActivity: (...e) => boardActions.getActivity(...e)(boardDispatch),
         addMember: (...e) => boardActions.addMember(...e)(boardDispatch, setAlert),
         moveList: (...e) => boardActions.moveList(...e)(boardDispatch, setAlert),
+        getUsers: (...e) => boardActions.getUsers(...e),
         addCardMember: (...e) => boardActions.addCardMember(...e)(boardDispatch, setAlert, setAlert),
         addChecklistItem: (...e) => boardActions.addChecklistItem(...e)(boardDispatch, setAlert),
         editChecklistItem: (...e) => boardActions.editChecklistItem(...e)(boardDispatch, setAlert),
