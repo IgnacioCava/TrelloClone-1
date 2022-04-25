@@ -58,8 +58,7 @@ router.post(
         }
       );
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server error');
+      res.status(500).send(err.message);
     }
   }
 );
@@ -67,15 +66,12 @@ router.post(
 // Get users with email regex
 router.get('/:input', auth, async (req, res) => {
   try {
-    const regex = new RegExp(req.params.input, 'i');
-    const users = await User.find({
-      email: regex,
-    }).select('-password');
-
+    const email = new RegExp(req.params.input, 'i');
+    const users = await User.find({email}).select('-password');
     res.json(users.filter((user) => user.id !== req.user.id));
+
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
+    res.status(500).send(err.message);
   }
 });
 
