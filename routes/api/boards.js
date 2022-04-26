@@ -44,7 +44,7 @@ router.post(
 // Get user's boards
 router.get('/', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate('boards');
+    const user = await User.findById(req.user.id).populate('boards', { _id: 1, title: 1 }).select('boards');
     if(!user) throw new Error({message: 'User not found', status: 404});
     res.json(user.boards);
   } catch (err) {
@@ -71,7 +71,7 @@ router.get('/opt/:id', auth, async (req, res) => {
       populate: {
         path: 'cards',
       }
-    });
+    }).select("-activity");
     if (!board) return res.status(404).json({ msg: 'Board not found' });
     res.json(board)
   } catch (err) {
@@ -82,7 +82,7 @@ router.get('/opt/:id', auth, async (req, res) => {
 // Get a board's activity
 router.get('/activity/:boardId', auth, async (req, res) => {
   try {
-    const board = await Board.findById(req.params.boardId);
+    const board = await Board.findById(req.params.boardId).select('activity');
     if (!board) return res.status(404).json({ msg: 'Board not found' });
 
     res.json(board.activity);
@@ -94,12 +94,11 @@ router.get('/activity/:boardId', auth, async (req, res) => {
 // Change a board's title
 router.patch('/rename/:id', [auth, member, [check('title', 'Title is required').not().isEmpty()]],
   async (req, res) => {
-    console.log(1)
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
-      const board = await Board.findById(req.params.id);
+      const board = await Board.findById(req.params.id).select('activity title');
       if (!board) throw new Error({message: 'Board not found', status: 404});
       
       // Log activity
@@ -112,7 +111,7 @@ router.patch('/rename/:id', [auth, member, [check('title', 'Title is required').
       }
       
       board.title = req.body.title;
-      res.json(board);
+      res.send("Board renamed successfully");
       await board.save();
       
     } catch (err) {
@@ -124,7 +123,7 @@ router.patch('/rename/:id', [auth, member, [check('title', 'Title is required').
 // Add a board member
 router.put('/addMember/:userId', [auth, member], async (req, res) => {
   try {
-    const board = await Board.findById(req.header('boardId'));
+    const board = await Board.findById(req.header('boardId')).select('members activity');
     const user = await User.findById(req.params.userId);
     if (!user) throw new Error({message: 'User not found', status: 404});
 

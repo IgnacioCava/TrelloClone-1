@@ -92,17 +92,17 @@ router.patch('/edit/:id', [auth, member], async (req, res) => {
 // Archive/Unarchive a card
 router.patch('/archive/:archive/:id', [auth, member], async (req, res) => {
   try {
-    const card = await Card.findById(req.params.id);
+    const card = await Card.findById(req.params.id).select('archived title');
     if (!card) return res.status(404).json({ msg: 'Card not found' });
 
     card.archived = req.params.archive === 'true';
+    res.json(card);
     await card.save();
     
-    res.json(card);
 
     // Log activity
     const user = await User.findById(req.user.id);
-    const board = await Board.findById(req.header('boardId'));
+    const board = await Board.findById(req.header('boardId')).select('activity');
     board.activity.unshift({
       text: card.archived
       ? `${user.name} archived card '${card.title}'`
@@ -122,12 +122,12 @@ router.patch('/move/:id', [auth, member], async (req, res) => {
     const boardId = req.header('boardId');
 
     const cardId = req.params.id;
-    const from = await List.findById(fromId);
+    const from = await List.findById(fromId).select('cards');
     let to
     if (fromId === toId) to = from;
-    else to = await List.findById(toId);
+    else to = await List.findById(toId).select('cards');
     
-    if (!cardId || !from || !to) return res.status(404).json({ msg: 'List/card not found' });
+    if (!cardId || !from || !to) return res.status(404).json({ msg: `${!from?"Sender list":!to?"Receiver list":"Elements"} not found` });
 
     const fromIndex = from.cards.indexOf(cardId);
     if (fromIndex !== -1) {
@@ -161,7 +161,7 @@ router.patch('/move/:id', [auth, member], async (req, res) => {
 router.put('/addMember/:add/:cardId/:userId', [auth, member], async (req, res) => {
   try {
     const { cardId, userId } = req.params;
-    const card = await Card.findById(cardId);
+    const card = await Card.findById(cardId).select('members title');
     const user = await User.findById(userId);
     if (!card || !user) return res.status(404).json({ msg: 'Card/user not found' });
 
@@ -189,14 +189,14 @@ router.put('/addMember/:add/:cardId/:userId', [auth, member], async (req, res) =
 // Delete a card
 router.delete('/:listId/:id', [auth, member], async (req, res) => {
   try {
-    const card = await Card.findById(req.params.id);
-    const list = await List.findById(req.params.listId);
+    const card = await Card.findById(req.params.id).select('title');
+    const list = await List.findById(req.params.listId).select('cards title');
     if (!card || !list) return res.status(404).json({ msg: 'List/card not found' });
 
     list.cards.splice(list.cards.indexOf(req.params.id), 1);
     await list.save();
     await card.remove();
-    res.json(req.params.id);
+    res.send("Removed card "+req.params.id);
 
     // Log activity
     const user = await User.findById(req.user.id);

@@ -25,7 +25,7 @@ router.post(
       const list = await newList.save();
 
       // Assign the list to the board
-      const board = await Board.findById(boardId);
+      const board = await Board.findById(boardId).select('lists activity');
       board.lists.push(list.id);
 
       // Log activity
@@ -44,7 +44,7 @@ router.post(
 // Get all of a board's lists
 router.get('/boardLists/:boardId', auth, async (req, res) => {
   try {
-    const board = await Board.findById(req.params.boardId).populate('lists');
+    const board = await Board.findById(req.params.boardId).populate('lists').select('lists');
     if (!board) return res.status(404).json({ msg: 'Board not found' });
     res.json(board.lists);
 
@@ -74,15 +74,15 @@ router.patch(
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
-      const list = await List.findById(req.params.id);
+      const list = await List.findById(req.params.id).select('title');
       if (!list) throw new Error({ message: 'List not found', status: 404 });
 
+      res.json("List renamed successfully");
       list.title = req.body.title;
       await list.save();
-      res.json(list);
       
     } catch (err) {
-      res.status(500).send(err.message);
+      res.status(err.status).send(err.message);
     }
   }
 );
@@ -90,8 +90,9 @@ router.patch(
 // Archive/Unarchive a list
 router.patch('/archive/:archive/:id', [auth, member], async (req, res) => {
   try {
-    const list = await List.findById(req.params.id);
+    const list = await List.findById(req.params.id).select('archived title');
     if (!list)  return res.status(404).json({ msg: 'List not found' });
+    res.json(`List ${req.params.archive?'archived':'restored'} successfully`);
 
     list.archived = req.params.archive === 'true';
     await list.save();
@@ -106,8 +107,6 @@ router.patch('/archive/:archive/:id', [auth, member], async (req, res) => {
     });
     await board.save();
 
-    res.json(list);
-
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -119,13 +118,13 @@ router.patch('/move/:id', [auth, member], async (req, res) => {
     const listId = req.params.id;
     if (!listId) return res.status(404).json({ msg: 'List not found' })
 
-    const toIndex = req.body.toIndex ? req.body.toIndex : 0;
+    res.send("List moved successfully");
+    const toIndex = req.body.toIndex ?? 0;
     const boardId = req.header('boardId');
-    const board = await Board.findById(boardId);
+    const board = await Board.findById(boardId).select('lists');
 
     board.lists.splice(board.lists.indexOf(listId), 1);
     board.lists.splice(toIndex, 0, listId);
-    res.send(board.lists);
 
     await board.save();
 
