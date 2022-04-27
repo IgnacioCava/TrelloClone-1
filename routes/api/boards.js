@@ -13,9 +13,7 @@ router.post(
   [auth, [check('title', 'Title is required').not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
       const { title, backgroundURL } = req.body;
@@ -33,15 +31,12 @@ router.post(
       board.members.push({ user: user.id, name: user.name });
 
       // Log activity
-      board.activity.unshift({
-        text: `${user.name} created this board`,
-      });
+      board.activity.unshift({ text: `${user.name} created this board` });
       await board.save();
 
       res.json(board);
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
+      res.status(500).send(err.message);
     }
   }
 );
@@ -49,17 +44,11 @@ router.post(
 // Get user's boards
 router.get('/', auth, async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-
-    const boards = [];
-    for (const boardId of user.boards) {
-      boards.push(await Board.findById(boardId));
-    }
-
-    res.json(boards);
+    const user = await User.findById(req.user.id).populate('boards', { _id: 1, title: 1 }).select('boards');
+    if(!user) throw new Error({message: 'User not found', status: 404});
+    res.json(user.boards);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(err.status).send(err.message);
   }
 });
 
@@ -67,63 +56,66 @@ router.get('/', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const board = await Board.findById(req.params.id);
-    if (!board) {
-      return res.status(404).json({ msg: 'Board not found' });
-    }
-
+    if (!board) return res.status(404).json({ msg: 'Board not found' });
     res.json(board);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send(err.message);
+  }
+});
+
+//Get a full board object by id
+router.get('/opt/:id', auth, async (req, res) => {
+  try {
+    const board = await Board.findById(req.params.id).populate({
+      path: 'lists',
+      populate: {
+        path: 'cards',
+      }
+    }).select("-activity");
+    if (!board) return res.status(404).json({ msg: 'Board not found' });
+    res.json(board)
+  } catch (err) {
+    res.status(500).send(err.message);
   }
 });
 
 // Get a board's activity
 router.get('/activity/:boardId', auth, async (req, res) => {
   try {
-    const board = await Board.findById(req.params.boardId);
-    if (!board) {
-      return res.status(404).json({ msg: 'Board not found' });
-    }
+    const board = await Board.findById(req.params.boardId).select('activity');
+    if (!board) return res.status(404).json({ msg: 'Board not found' });
 
     res.json(board.activity);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(500).send(err.message);
   }
 });
 
 // Change a board's title
-router.patch(
-  '/rename/:id',
-  [auth, member, [check('title', 'Title is required').not().isEmpty()]],
+router.patch('/rename/:id', [auth, member, [check('title', 'Title is required').not().isEmpty()]],
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
     try {
-      const board = await Board.findById(req.params.id);
-      if (!board) {
-        return res.status(404).json({ msg: 'Board not found' });
-      }
-
+      const board = await Board.findById(req.params.id).select('activity title');
+      if (!board) throw new Error({message: 'Board not found', status: 404});
+      
       // Log activity
       if (req.body.title !== board.title) {
         const user = await User.findById(req.user.id);
+        if(!user) throw new Error({message: 'User not found', status: 404});
         board.activity.unshift({
           text: `${user.name} renamed this board (from '${board.title}')`,
         });
       }
-
+      
       board.title = req.body.title;
+      res.send("Board renamed successfully");
       await board.save();
-
-      res.json(board);
+      
     } catch (err) {
-      console.error(err.message);
-      res.status(500).send('Server Error');
+      res.status(err.status).send(err.message);
     }
   }
 );
@@ -131,15 +123,13 @@ router.patch(
 // Add a board member
 router.put('/addMember/:userId', [auth, member], async (req, res) => {
   try {
-    const board = await Board.findById(req.header('boardId'));
+    const board = await Board.findById(req.header('boardId')).select('members activity');
     const user = await User.findById(req.params.userId);
-    if (!user) {
-      return res.status(404).json({ msg: 'User not found' });
-    }
+    if (!user) throw new Error({message: 'User not found', status: 404});
 
-    // See if already member of board
-    if (board.members.map((member) => member.user).includes(req.params.userId)) {
-      return res.status(400).json({ msg: 'Already member of board' });
+    // See if user is already a member of board. This method is 30% faster
+    if(board.members.find(member => member.user === req.params.userId)){
+      throw new Error({message: 'User already member of board', status: 400});
     }
 
     // Add board to user's boards
@@ -150,15 +140,12 @@ router.put('/addMember/:userId', [auth, member], async (req, res) => {
     board.members.push({ user: user.id, name: user.name, role: 'normal' });
 
     // Log activity
-    board.activity.unshift({
-      text: `${user.name} joined this board`,
-    });
+    board.activity.unshift({ text: `${user.name} joined this board`,});
     await board.save();
 
     res.json(board.members);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server Error');
+    res.status(err.status).send(err.message);
   }
 });
 

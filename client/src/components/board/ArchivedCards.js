@@ -1,6 +1,6 @@
 import {useContext, memo} from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
-//import Alert from '../../components/other/Alert';
+
 
 import { Card, List, ListItem, CardContent, Button } from '@material-ui/core';
 
@@ -8,12 +8,11 @@ const ArchivedCards = memo (() => {
   const { board: {board: {listObjects, cardObjects}}, archiveCard, deleteCard } = useContext(BoardContext);
 
   const onSendBack = (card) => archiveCard(card, false)
-  const onDelete = (listId, cardId) => deleteCard(listId, cardId)
-  //Deleting cards on quick succession essentially forces an error from the server. I'll fix this on the backend branch
+  const onDelete = (listId, card) => deleteCard(listId, card)
 
   return (
     <div>
-      {/* <Alert/> */}
+      
       <List>
         {cardObjects
           .filter((card) => card.archived)
@@ -25,7 +24,9 @@ const ArchivedCards = memo (() => {
               <div>
                 <Button
                   color='secondary'
-                  onClick={() => onDelete(listObjects.find((list) => list.cards.includes(card._id))._id, card._id)}>
+                  onClick={() => {
+                    onDelete(listObjects.find((list) => list.cards.map(e=>e._id).includes(card._id))._id, card)}
+                    }>
                   Delete Card
                 </Button>
                 <Button onClick={() => onSendBack(card)}>

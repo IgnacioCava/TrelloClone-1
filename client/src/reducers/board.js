@@ -27,7 +27,7 @@ import {
 
 export const boardState = {
   boards: [],
-  board: null,
+  board: {listObjects:{}, cardObjects:[]},
   dashboardLoading: true,
   error: {},
 };
@@ -76,7 +76,7 @@ export function boardReducer(state = boardState, action) {
         ...state,
         board: {
           ...state.board,
-          lists: [...state.board.lists, payload._id],
+          listObjects: [...state.board.listObjects, payload],
         },
       };
     case ARCHIVE_LIST:
@@ -103,9 +103,10 @@ export function boardReducer(state = boardState, action) {
         ...state,
         board: {
           ...state.board,
+          cardObjects: [...state.board.cardObjects, payload],
           listObjects: state.board.listObjects.map((list) =>
             list._id === payload.listId
-              ? { ...list, cards: [...list.cards, payload.cardId] }
+              ? { ...list, cards: list.cards.concat(payload.card) }
               : list
           ),
         },
@@ -138,24 +139,21 @@ export function boardReducer(state = boardState, action) {
               ? payload.to
               : list
           ),
-          cardObjects: state.board.cardObjects.filter(
-            (card) => card._id !== payload.cardId || payload.to._id === payload.from._id
-          ),
         },
       };
-    case DELETE_CARD:
+      case DELETE_CARD:
       return {
         ...state,
         board: {
           ...state.board,
           cardObjects: state.board.cardObjects.filter((card) => card._id !== payload),
           listObjects: state.board.listObjects.map((list) =>
-            list.cards.includes(payload)
-              ? { ...list, cards: list.cards.filter((card) => card !== payload) }
+          list.cards.map(e=>e._id).includes(payload)
+              ? { ...list, cards: list.cards.filter((card) => card._id !== payload) }
               : list
-          ),
-        },
-      };
+              ),
+            },
+          };
     case GET_ACTIVITY:
       return {
         ...state,
@@ -177,7 +175,7 @@ export function boardReducer(state = boardState, action) {
         ...state,
         board: {
           ...state.board,
-          lists: payload,
+          listObjects: payload,
         },
       };
     default:

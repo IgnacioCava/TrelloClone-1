@@ -33,7 +33,7 @@ const ListMenu = ({ list }) => {
           Archive This List
         </MenuItem>
         <MenuItem>
-          <MoveList listId={list._id} closeMenu={() => setAnchorEl(null)} />
+          <MoveList list={list} closeMenu={() => setAnchorEl(null)} />
         </MenuItem>
       </Menu>
     </div>

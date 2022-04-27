@@ -8,13 +8,13 @@ import CloseIcon from '@material-ui/icons/Close';
 import { BoardContext } from '../../contexts/BoardStore';
 
 
-const DeleteCard = ({ cardId, listId, setOpen }) => {
+const DeleteCard = ({ card, listId, setOpen }) => {
   const { deleteCard } = useContext(BoardContext);
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const onDeleteCard = () => {
-    deleteCard(listId, cardId);
+    deleteCard(listId, card);
     setOpenDialog(false)
     setOpen(false)
   }

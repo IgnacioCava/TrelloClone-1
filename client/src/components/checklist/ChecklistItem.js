@@ -7,7 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-//import Alert from '../../components/other/Alert';
+
 
 
 const ChecklistItem = ({ item, card }) => {
@@ -67,7 +67,7 @@ const ChecklistItem = ({ item, card }) => {
             label={item.text}
             className={classes.checklistFormLabel}
           />
-          {/* <Alert/> */}
+          
           <div className={classes.itemButtons}>
             <Button className={classes.itemButton} onClick={() => setEditing(true)}>
               <EditIcon />

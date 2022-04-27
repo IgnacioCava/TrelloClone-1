@@ -15,14 +15,14 @@ const Board = ({ match }) => {
   const { auth: {isAuthenticated} } = useContext(AuthContext);
   const { board: {board}, getBoard, moveCard, moveList } = useContext(BoardContext);
 
-  const [backgroundURL, lists, listObjects] = [ board?.backgroundURL, board?.lists, board?.listObjects ];
+  const [backgroundURL, listObjects, cardObjects] = [ board?.backgroundURL, board?.listObjects, board?.cardObjects ];
 
   const defaultBackground = 'https://images.unsplash.com/photo-1598197748967-b4674cb3c266?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2689&q=80'
 
   useEffect(() => {
     getBoard(match.params.id)
   }, [match.params.id]);
-  
+
   if (!isAuthenticated) return <Redirect to='/' />
 
   const onDragEnd = (result) => {
@@ -30,12 +30,12 @@ const Board = ({ match }) => {
 
     if (!destination) return
     if (type === 'card') {
-      moveCard(listObjects, draggableId, {
+      moveCard({listObjects, cardObjects}, draggableId, {
           fromId: source.droppableId,
           toId: destination.droppableId,
           toIndex: destination.index,
         })
-    } else moveList(listObjects, draggableId, { toIndex: destination.index })
+    } else moveList(listObjects, draggableId, destination.index)
   };
 
   return !board ? (
@@ -56,20 +56,24 @@ const Board = ({ match }) => {
       <section className='board'>
         <div className='board-top'>
           <div className='board-top-left'>
-            <BoardTitle board={board} />
+            <BoardTitle board={board} /> 
+            
             <Members /> 
+            
           </div>
           <BoardDrawer /> 
+          
         </div>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId='all-lists' direction='horizontal' type='list'>
             {(provided) => (
               <div className='lists' ref={provided.innerRef} {...provided.droppableProps}>
-                {lists.map((listId, index) => 
-                  <List key={listId} listId={listId} index={index} />)
+                {listObjects.map((list, index) => 
+                  <List key={list._id} list={list} index={index} />)
                 }
                 {provided.placeholder}
                 <CreateList />
+                
               </div>
             )}
           </Droppable>

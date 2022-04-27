@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState, useEffect, useContext, useMemo } from 'react';
+import { Fragment, useRef, useState, useEffect, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { Draggable } from 'react-beautiful-dnd';
@@ -11,10 +11,10 @@ import SubjectIcon from '@material-ui/icons/Subject';
 import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 import { TextField, CardContent, Button, Avatar, Tooltip } from '@material-ui/core';
 import CardModal from './CardModal';
-//import Alert from '../../components/other/Alert';
 
-const Card = ({ list, cardId, index }) => {
-  const { board: {board: {cardObjects}}, getCard, editCard } = useContext(BoardContext)
+
+const Card = ({ list, card, index }) => {
+  const { board: {board: {cardObjects}}, editCard } = useContext(BoardContext)
 
   const [editing, setEditing] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -24,28 +24,24 @@ const Card = ({ list, cardId, index }) => {
   const [completeItems, setCompleteItems] = useState(0);
   const cardRef = useRef(null);
 
-  const card = useMemo(()=> cardObjects.find((object) => object._id === cardId), [cardObjects, cardId]);
+  const thisCard = cardObjects.find((object) => object._id === card._id);
 
   useEffect(() => {
-    getCard(cardId)
-  }, [cardId]);
-
-  useEffect(() => {
-    if (card) {
-      setTitle(card.title);
-      card.checklist &&
+    if (thisCard) {
+      setTitle(thisCard.title);
+      thisCard.checklist &&
         setCompleteItems(
-          card.checklist.reduce(
+          thisCard.checklist.reduce(
             (completed, item) => (completed += item.complete ? 1 : 0),
             0
           )
         );
     }
-  }, [card]);
+  }, [thisCard]);
 
   useEffect(() => {
     setHeight(cardRef?.current?.clientHeight);
-  }, [card, cardRef]);
+  }, [thisCard, cardRef]);
 
   const onSubmitEdit = async (e) => {
     e.preventDefault();
@@ -54,19 +50,19 @@ const Card = ({ list, cardId, index }) => {
     editCard(card, { title })
   }
 
-  return !card || card.archived ? null :
+  return !thisCard || thisCard.archived ? null :
     <Fragment>
       <CardModal
-        cardId={cardId}
+        cardId={thisCard._id}
         open={openModal}
         setOpen={setOpenModal}
-        card={card}
+        card={thisCard}
         list={list}
         title = {title}
         setTitle= {setTitle}
       />
       {!editing ? (
-        <Draggable draggableId={cardId} index={index}>
+        <Draggable draggableId={thisCard._id} index={index}>
           {(provided) => (
             <CardMUI
               className={`card ${mouseOver && !editing ? 'mouse-over' : ''}`}
@@ -96,19 +92,19 @@ const Card = ({ list, cardId, index }) => {
                 }}
                 ref={cardRef}
               >
-                {card.label && card.label !== 'none' && (
-                  <div className='card-label' style={{ backgroundColor: card.label }} />
+                {thisCard.label && thisCard.label !== 'none' && (
+                  <div className='card-label' style={{ backgroundColor: thisCard.label }} />
                 )}
                 <p>{title}</p>
                 <div className='card-bottom'>
                   <div className='card-bottom-left'>
-                    {card.description && (
+                    {thisCard.description && (
                       <SubjectIcon className='description-indicator' fontSize='small' />
                     )}
-                    {card.checklist && card.checklist.length > 0 && (
+                    {thisCard.checklist && thisCard.checklist.length > 0 && (
                       <div
                         className={`checklist-indicator ${
-                          completeItems === card.checklist.length
+                          completeItems === thisCard.checklist.length
                             ? 'completed-checklist-indicator'
                             : ''
                         }`}
@@ -117,12 +113,12 @@ const Card = ({ list, cardId, index }) => {
                           fontSize='small'
                           className='checklist-indicator-icon'
                         />
-                        {completeItems}/{card.checklist.length}
+                        {completeItems}/{thisCard.checklist.length}
                       </div>
                     )}
                   </div>
                   <div className='card-member-avatars'>
-                    {card.members.map((member) => {
+                    {thisCard.members.map((member) => {
                       return (
                         <Tooltip title={member.name} key={member.user}>
                           <Avatar className='avatar'>{getInitials(member.name)}</Avatar>
@@ -134,7 +130,7 @@ const Card = ({ list, cardId, index }) => {
               </CardContent>
             </CardMUI>
           )}
-          {/* <Alert/> */}
+          
         </Draggable>
       ) : (
         <form className='create-card-form' onSubmit={onSubmitEdit}>

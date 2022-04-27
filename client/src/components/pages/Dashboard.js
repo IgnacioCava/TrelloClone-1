@@ -11,7 +11,7 @@ const Dashboard = memo(() => {
   const { board: {boards, dashboardLoading}, getBoards } = useContext(BoardContext);
   
   useEffect(() => {
-    loadUser() // For some reason, if a user logs out and then logs in, the app doesn't recognize the token in localStorage. Having loadUser both here and in App.js fixes it.
+    loadUser()
     getBoards();
   }, []);
 

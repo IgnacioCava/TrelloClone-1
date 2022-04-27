@@ -8,19 +8,12 @@ import Card from '../card/Card';
 import CreateCardForm from './CreateCardForm';
 import Button from '@material-ui/core/Button';
 
-const List = ({ listId, index }) => {
-  const { board: {board: {listObjects, cardObjects}}, getList } = useContext(BoardContext);
+const List = ({ list, index }) => {
+  const { board: {board: {listObjects}} } = useContext(BoardContext);
 
   const [addingCard, setAddingCard] = useState(false);
-  const [list, setList] = useState();
 
-  useEffect(() => {
-    getList(listId)
-  }, [listId]);
-
-  useEffect(() => {
-    setList(listObjects.find((object) => object._id === listId))
-  }, [listObjects, cardObjects]);
+  const thisList = listObjects.find(e=>e._id === list._id)
 
   const createCardFormRef = useRef(null);
   useEffect(() => {
@@ -30,7 +23,7 @@ const List = ({ listId, index }) => {
   return !list || list.archived ? (
     ''
   ) : (
-    <Draggable draggableId={listId} index={index}>
+    <Draggable draggableId={thisList._id} index={index}>
       {(provided) => (
         <div
           className='list-wrapper'
@@ -39,10 +32,10 @@ const List = ({ listId, index }) => {
           ref={provided.innerRef}
         >
           <div className='list-top'>
-            <ListTitle list={list} />
-            <ListMenu list={list} />
+            <ListTitle list={thisList} />
+            <ListMenu list={thisList} />
           </div>
-          <Droppable droppableId={listId} type='card'>
+          <Droppable droppableId={thisList._id} type='card'>
             {(provided) => (
               <div
                 className={`list ${addingCard ? 'adding-card' : 'not-adding-card'}`}
@@ -50,12 +43,13 @@ const List = ({ listId, index }) => {
                 ref={provided.innerRef}
               >
                 <div className='cards'>
-                  {list.cards.map((cardId, index) => <Card key={cardId} list={list} cardId={cardId} index={index}/>)}
+                  {thisList.cards.map((card, index) => <Card key={card._id} list={list} card={card} index={index}/>)}
                 </div>
                 {provided.placeholder}
                 {addingCard && (
                   <div ref={createCardFormRef}>
-                    <CreateCardForm listId={listId} setAdding={setAddingCard}/>
+                    <CreateCardForm listId={list._id} setAdding={setAddingCard}/>
+                    
                   </div>
                 )}
               </div>

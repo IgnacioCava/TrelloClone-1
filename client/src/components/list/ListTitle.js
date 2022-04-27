@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import { BoardContext } from '../../contexts/BoardStore';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
-//import Alert from '../../components/other/Alert';
+
 
 
 const ListTitle = ({ list }) => {
@@ -10,7 +10,7 @@ const ListTitle = ({ list }) => {
 
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(list.title);
-  
+
   const onSubmit = (e) => {
     e.preventDefault();
     setEditing(false);
@@ -22,7 +22,7 @@ const ListTitle = ({ list }) => {
       <h3 className='list-title' onClick={() => setEditing(true)}>
         {list.title}
       </h3>
-      {/* <Alert/> */}
+      
     </>
   ) : (
     <form onSubmit={onSubmit}>
