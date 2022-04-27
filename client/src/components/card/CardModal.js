@@ -10,7 +10,7 @@ import DeleteCard from './DeleteCard';
 import CardMembers from './CardMembers';
 import Checklist from '../checklist/Checklist';
 import useStyles from '../../utils/modalStyles';
-//import Alert from '../../components/other/Alert';
+
 
 const CardModal = ({ cardId, open, setOpen, card, list, title, setTitle }) => {
   const { editCard, archiveCard } = useContext(BoardContext);
@@ -72,11 +72,12 @@ const CardModal = ({ cardId, open, setOpen, card, list, title, setTitle }) => {
             >
               Save All Changes
             </Button>
-            {/* <Alert/> */}
+            
           </>
         </form>
         <div className={classes.modalSection}>
           <CardMembers card={card} />
+          
           <div>
             <h3 className={classes.labelTitle}>Label</h3>
             <GithubPicker
@@ -103,7 +104,8 @@ const CardModal = ({ cardId, open, setOpen, card, list, title, setTitle }) => {
             >
               Archive Card
             </Button>
-            <DeleteCard cardId={card._id} listId={list._id} setOpen={setOpen} />
+            <DeleteCard card={card} listId={list._id} setOpen={setOpen} />
+            
           </div>
         </div>
       </div>

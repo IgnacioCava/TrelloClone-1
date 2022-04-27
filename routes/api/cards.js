@@ -22,13 +22,13 @@ router.post('/', [auth, member, [check('title', 'Title is required').not().isEmp
       // Create and save the card
       const newCard = new Card({ title });
       const card = await newCard.save();
+      res.json({ card, listId });
 
       // Assign the card to the list
       const list = await List.findById(listId);
       list.cards.push(card.id);
       await list.save();
       
-      res.json({ cardId: card.id, listId });
 
       // Log activity
       const user = await User.findById(req.user.id);
@@ -173,13 +173,13 @@ router.put('/addMember/:add/:cardId/:userId', [auth, member], async (req, res) =
     if (add) card.members.push({ user: user.id, name: user.name });
     else card.members.splice(index, 1);
 
+    await card.save();
     res.json(card);
-
+    
     // Log activity
     const board = await Board.findById(req.header('boardId'));
     board.activity.unshift({ text: `${user.name} ${add ? 'joined' : 'left'} '${card.title}'`});
     await board.save();
-    await card.save();
 
   } catch (err) {
     res.status(500).send(err.message);

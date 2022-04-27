@@ -17,9 +17,10 @@ import ArchivedLists from './ArchivedLists';
 import ArchivedCards from './ArchivedCards';
 import useStyles from '../../utils/drawerStyles';
 import { BoardContext } from '../../contexts/BoardStore';
+import { useEffect } from 'react';
 
 const BoardDrawer = memo(() => {
-  const { board: {board: {activity}} } = useContext(BoardContext);
+  const { board: {board: {activity}}, getActivity } = useContext(BoardContext);
 
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -31,6 +32,10 @@ const BoardDrawer = memo(() => {
     setOpen(false);
     setActivityChunks(1);
   };
+
+  useEffect(() => {
+    getActivity();
+  }, [])
 
   return (
     <div>
@@ -78,7 +83,7 @@ const BoardDrawer = memo(() => {
               <h3>Activity</h3>
             </div>
             <List>
-              {activity.slice(0, activityChunks * 10).map((activity) => (
+              {activity?.slice(0, activityChunks * 10).map((activity) => (
                 <ListItem key={activity._id}>
                   <ListItemText
                     primary={activity.text}
@@ -89,7 +94,7 @@ const BoardDrawer = memo(() => {
             </List>
             <div className={classes.viewMoreActivityButton}>
               <Button
-                disabled={activityChunks * 10 > activity.length}
+                disabled={activityChunks * 10 > activity?.length}
                 onClick={() => setActivityChunks(activityChunks + 1)}
               >
                 View More Activity
@@ -109,6 +114,7 @@ const BoardDrawer = memo(() => {
             </div>
             <Divider />
             <ArchivedLists />
+            
           </div>
         ) : (
           <div>
@@ -123,12 +129,13 @@ const BoardDrawer = memo(() => {
             </div>
             <Divider />
             <ArchivedCards />
+            
           </div>
         )}
         <Divider />
       </Drawer>
     </div>
-  );
+  )
 })
 
 export default BoardDrawer;

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { TextField, Button } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 import useStyles from '../../utils/modalStyles';
-//import Alert from '../../components/other/Alert';
+
 
 
 const CreateChecklistItem = ({ card }) => {
@@ -25,7 +25,7 @@ const CreateChecklistItem = ({ card }) => {
       <Button variant='contained' onClick={() => setAdding(true)}>
         + Add an item
       </Button>
-      {/* <Alert/> */}
+      
     </div>
   ) : (
     <div className={classes.checklistBottom}>

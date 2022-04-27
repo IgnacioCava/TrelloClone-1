@@ -1,5 +1,4 @@
 import React, { useState, useContext, useMemo } from 'react';
-import axios from 'axios';
 import getInitials from '../../utils/getInitials';
 import { BoardContext } from '../../contexts/BoardStore';
 
@@ -8,7 +7,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import CloseIcon from '@material-ui/icons/Close';
-//import Alert from '../../components/other/Alert';
 
 
 const Members = () => {
@@ -53,7 +51,7 @@ const Members = () => {
         <Button className='invite' variant='contained' onClick={() => setInviting(true)}>
           Invite
         </Button>
-        // <Alert/>
+        
       ) : (
         <div className='invite'>
           <Autocomplete

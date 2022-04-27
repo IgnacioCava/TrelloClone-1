@@ -3,7 +3,6 @@ import AlertMUI from '@material-ui/lab/Alert';
 import { AuthContext } from '../../contexts/AuthStore';
 import { BoardContext } from '../../contexts/BoardStore';
 
-// The way alerts are currently stored and handled hinders their usability, as I currently cannot place multiple Alert components across the app. Will change how this works later.
 const Alert = () => {
   const { alert } = useContext(AuthContext);
   const context = useContext(BoardContext);

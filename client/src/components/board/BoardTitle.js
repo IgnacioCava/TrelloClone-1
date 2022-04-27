@@ -2,7 +2,7 @@ import { useState, useContext, memo } from 'react';
 import PropTypes from 'prop-types';
 import { TextField } from '@material-ui/core';
 import { BoardContext } from '../../contexts/BoardStore';
-//import Alert from '../../components/other/Alert';
+
 
 const BoardTitle = memo(({ board }) => {
   const { renameBoard } = useContext(BoardContext);
@@ -22,7 +22,6 @@ const BoardTitle = memo(({ board }) => {
     <h2 className='board-title' onClick={() => setEditing(true)}>
       {board.title}
     </h2>
-    // <Alert />
   ) : (
     <form className='board-title-form' onSubmit={onSubmit}>
       <TextField

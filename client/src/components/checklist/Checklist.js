@@ -14,9 +14,11 @@ const Checklist = memo( ({ card }) => {
       <FormControl component='fieldset'>
         <FormGroup>
           {card.checklist.map((item) => <ChecklistItem key={item._id} item={item} card={card} />)}
+          
         </FormGroup>
       </FormControl>
       <CreateChecklistItem card={card} />
+      
     </Fragment>
   );
 })

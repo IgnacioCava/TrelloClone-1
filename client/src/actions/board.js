@@ -55,7 +55,7 @@ export const getBoards = () => async (dispatch) => {
 // Get board
 export const getBoard = (id) => async (dispatch) => {
   try {
-    const res = await axios.get(`/api/boards/${id}`);
+    const res = await axios.get(`/api/boards/opt/${id}`);
 
     if (res) {
       axios.defaults.headers.common['boardId'] = id;
@@ -65,8 +65,9 @@ export const getBoard = (id) => async (dispatch) => {
 
     dispatch({
       type: GET_BOARD,
-      payload: { ...res.data, listObjects: [], cardObjects: [] },
+      payload: { ...res.data, listObjects: res.data.lists, cardObjects: res.data.lists.map(e=>e.cards).flat() },
     });
+    getActivity()
   } catch (err) {
     dispatch({
       type: BOARD_ERROR,
@@ -220,7 +221,6 @@ export const addCard = (formData) => async (dispatch) => {
     const body = JSON.stringify(formData);
 
     const res = await axios.post('/api/cards', body, config);
-
     dispatch({
       type: ADD_CARD,
       payload: res.data,
@@ -255,26 +255,35 @@ export const editCard = (card, formData) => async (dispatch, setAlert) => {
 };
 
 // Move card
-export const moveCard = (lists, cardId, formData) => async (dispatch, setAlert) => {
-  const fromList = {...lists.find(e=>e._id===formData.fromId)};
+export const moveCard = ({listObjects, cardObjects}, cardId, formData) => async (dispatch, setAlert) => {
+  let movedCard = cardObjects.find(e=>e._id===cardId)
+  const fromList = {...listObjects.find(e=>e._id===formData.fromId)};
   const fromCards = [...fromList.cards]
-  const toList = {...lists.find(e=>e._id===formData.toId)}
+  const toList = {...listObjects.find(e=>e._id===formData.toId)}
   const toCards = [...toList.cards]
   const addedIndex = [...toCards]
-  addedIndex.splice(formData.toIndex, 0, cardId)
+  addedIndex.splice(formData.toIndex, 0, movedCard)
 
   dispatch({
     type: MOVE_CARD,
     payload: {
       cardId, 
-      from: {...fromList, cards: fromCards.filter(e=>e!==cardId)},
+      from: {...fromList, cards: fromCards.filter(e=>e._id!==cardId)},
       to: {...toList, cards: addedIndex},
     },
   });
-
   try {
     const body = JSON.stringify(formData);
-    await axios.patch(`/api/cards/move/${cardId}`, body, config);
+    const res = await axios.patch(`/api/cards/move/${cardId}`, body, config);
+
+    dispatch({
+      type: MOVE_CARD,
+      payload: {
+        cardId, 
+        from: {...fromList, cards: res.data.from.cards.map(e=>cardObjects.find(card=>card._id===e))},
+        to: {...toList, cards: res.data.to.cards.map(e=>cardObjects.find(card=>card._id===e))},
+      },
+    });
     dispatch(getActivity());
   } catch (err) {
     dispatch({
@@ -309,20 +318,20 @@ export const archiveCard = (card, archived) => async (dispatch, setAlert) => {
 };
 
 // Delete card
-export const deleteCard = (listId, cardId) => async (dispatch, setAlert) => {
+export const deleteCard = (listId, card) => async (dispatch, setAlert) => {
   dispatch({
     type: DELETE_CARD,
-    payload: cardId,
+    payload: card._id,
   });
 
   try {
-    await axios.delete(`/api/cards/${listId}/${cardId}`);
+    await axios.delete(`/api/cards/${listId}/${card._id}`);
     setAlert('Card deleted successfully', 'success')
     dispatch(getActivity());
   } catch (err) {
     dispatch({
       type: ADD_CARD,
-      payload: {cardId, listId},
+      payload: {card, listId},
     });
     setAlert('An error ocurred while deleting the card', 'error')
   }
@@ -364,17 +373,24 @@ export const addMember = (userId) => async (dispatch, setAlert) => {
 };
 
 // Move list
-export const moveList = (lists, listId, {toIndex}) => async (dispatch, setAlert) => {
+export const moveList = (lists, list, toIndex) => async (dispatch, setAlert) => {
   const allLists = [...lists];
-  let indexedLists = allLists.map(e=>e._id).filter(e=>e !== listId)
-  indexedLists.splice(toIndex, 0, listId)
+  let indexedLists = [...lists]
+
+  indexedLists.splice(indexedLists.findIndex(e=>e._id===list), 1);
+  indexedLists.splice(toIndex, 0, allLists.find(e=>e._id===list));
+
   dispatch({
-      type: MOVE_LIST,
+    type: MOVE_LIST,
     payload: indexedLists,
   });
   try {
     const body = JSON.stringify({toIndex});
-    await axios.patch(`/api/lists/move/${listId}`, body, config);
+    const res = await axios.patch(`/api/lists/move/${list}`, body, config);
+    dispatch({
+      type: MOVE_LIST,
+      payload: res.data.map(e=>allLists.find(list=>list._id===e)),
+    });
   } catch (err) {
     dispatch({
       type: MOVE_LIST,
@@ -456,7 +472,7 @@ export const completeChecklistItem = (card, item, complete) => async (dispatch, 
   const completeItem = (action) => {
     dispatch({
       type: COMPLETE_CHECKLIST_ITEM,
-      payload: {...card, checklist: card.checklist.map(thisItem => thisItem._id === item._id ? (action? {...item, complete} : {...item, complete:!complete}) : item)},
+      payload: {...card, checklist: card.checklist.map(thisItem => thisItem._id === item._id ? (action? {...item, complete} : {...item, complete:!complete}) : thisItem)},
     });
   }
   completeItem(true)

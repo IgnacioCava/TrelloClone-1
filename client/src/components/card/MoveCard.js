@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { BoardContext } from '../../contexts/BoardStore';
-//import Alert from '../../components/other/Alert';
+
 
 import Button from '@material-ui/core/Button';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -11,7 +11,7 @@ import Select from '@material-ui/core/Select';
 import useStyles from '../../utils/modalStyles';
 
 const MoveCard = ({ cardId, setOpen, thisList }) => {
-  const { board: {board: {listObjects, lists, cardObjects}}, moveCard } = useContext(BoardContext);
+  const { board: {board: {listObjects, cardObjects}}, moveCard } = useContext(BoardContext);
 
   const classes = useStyles();
   const [listObject, setListObject] = useState(null);
@@ -20,7 +20,7 @@ const MoveCard = ({ cardId, setOpen, thisList }) => {
   const [positions, setPositions] = useState([0]);
 
   const activeLists = listObjects.filter((list) => !list.archived)
-    .sort((a, b) => lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id))
+    .sort((a, b) => listObjects.findIndex((id) => id === a._id) - listObjects.findIndex((id) => id === b._id))
 
   useEffect(() => {
     setListObject(thisList);
@@ -30,8 +30,8 @@ const MoveCard = ({ cardId, setOpen, thisList }) => {
   useEffect(() => {
     if (listObject) {
       const unarchivedListCards = listObject.cards
-        .map((id, index) => {
-          const card = cardObjects.find((object) => object._id === id);
+        .map((cardEl, index) => {
+          const card = cardObjects.find((object) => object._id === cardEl._id);
           const position = index;
           return { card, position };
         })
@@ -51,7 +51,7 @@ const MoveCard = ({ cardId, setOpen, thisList }) => {
   }, [thisList, cardId, listObject, cardObjects]);
 
   const onSubmit = async () => {
-    moveCard(listObjects, cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position })
+    moveCard({listObjects, cardObjects}, cardId, { fromId: thisList._id, toId: listObject._id, toIndex: position })
     setOpen(false);
   };
 

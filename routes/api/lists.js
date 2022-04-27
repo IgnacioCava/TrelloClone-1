@@ -115,21 +115,22 @@ router.patch('/archive/:archive/:id', [auth, member], async (req, res) => {
 // Move a list
 router.patch('/move/:id', [auth, member], async (req, res) => {
   try {
-    const listId = req.params.id;
-    if (!listId) return res.status(404).json({ msg: 'List not found' })
-
-    res.send("List moved successfully");
-    const toIndex = req.body.toIndex ?? 0;
+    const toIndex = req.body.toIndex ? req.body.toIndex : 0;
     const boardId = req.header('boardId');
-    const board = await Board.findById(boardId).select('lists');
+    const board = await Board.findById(boardId);
+    const listId = req.params.id;
+    if (!listId) {
+      return res.status(404).json({ msg: 'List not found' });
+    }
 
     board.lists.splice(board.lists.indexOf(listId), 1);
     board.lists.splice(toIndex, 0, listId);
-
+    res.send(board.lists);
     await board.save();
 
   } catch (err) {
-    res.status(500).send(err.message);
+    console.error(err.message);
+    res.status(500).send('Server Error');
   }
 });
 

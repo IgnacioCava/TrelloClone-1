@@ -12,8 +12,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import useStyles from '../../utils/dialogStyles';
 
-const MoveList = ({ listId, closeMenu }) => {
-  const { board:{board:{lists, listObjects}}, moveList } = useContext(BoardContext);
+const MoveList = ({ list, closeMenu }) => {
+  const { board:{board:{listObjects}}, moveList } = useContext(BoardContext);
 
   const classes = useStyles();
   const [openDialog, setOpenDialog] = useState(false);
@@ -22,14 +22,14 @@ const MoveList = ({ listId, closeMenu }) => {
 
   useEffect(() => {
     const mappedListObjects = listObjects.sort((a, b) =>
-          lists.findIndex((id) => id === a._id) - lists.findIndex((id) => id === b._id)
+    listObjects.findIndex((id) => id === a._id) - listObjects.findIndex((id) => id === b._id)
       ).map((list, index) => ({ list, index }));
     setPositions(mappedListObjects.filter((list) => !list.list.archived).map((list) => list.index))
-    setPosition(mappedListObjects.findIndex((list) => list.list._id === listId))
-  }, [listId, listObjects, lists]);
+    setPosition(mappedListObjects.findIndex((listEl) => listEl.list._id === list._id));
+  }, [list._id, listObjects]);
 
   const onSubmit = async () => {
-    moveList(listObjects, listId, { toIndex: position })
+    moveList(listObjects, list._id, position)
     setOpenDialog(false);
     closeMenu();
   };
